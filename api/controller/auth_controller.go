@@ -26,6 +26,13 @@ type RegisterRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// ChangePasswordRequest 修改密码请求
+type ChangePasswordRequest struct {
+	Username    string `json:"username" binding:"required"`
+	OldPassword string `json:"old_password" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required"`
+}
+
 // NewAuthController 创建认证控制器
 func NewAuthController(authUseCase usecase.AuthUseCase, env *config.Env) *AuthController {
 	return &AuthController{
@@ -41,6 +48,7 @@ func (c *AuthController) RegisterRoutes(router *gin.RouterGroup) {
 		auth.POST("/login", c.Login)
 		auth.POST("/register", c.Register)
 		auth.POST("/refresh", c.RefreshToken)
+		auth.POST("/changePassword", c.ChangePassword)
 	}
 }
 
@@ -90,7 +98,7 @@ func (c *AuthController) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, expiresIn, err := c.authUseCase.RefreshToken(req.RefreshToken)
+	accessToken, expiry, err := c.authUseCase.RefreshToken(req.RefreshToken)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -98,6 +106,23 @@ func (c *AuthController) RefreshToken(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"access_token": accessToken,
-		"expires_in":   expiresIn,
+		"expiry":       expiry,
 	})
+}
+
+// ChangePassword 修改密码
+func (c *AuthController) ChangePassword(ctx *gin.Context) {
+	var req ChangePasswordRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := c.authUseCase.ChangePassword(req.Username, req.OldPassword, req.NewPassword)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "密码修改成功"})
 }
