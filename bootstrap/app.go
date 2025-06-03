@@ -26,7 +26,7 @@ func App() Application {
 	}
 
 	// 自动迁移数据库模型
-	if err := sqliteDB.AutoMigrate(&models.User{}, &models.Message{}, &models.Config{}, &models.Bridge{}, &models.Channel{}); err != nil {
+	if err := sqliteDB.AutoMigrate(&models.User{}, &models.Message{}, &models.Bridge{}, &models.Channel{}); err != nil {
 		log.Fatalf("数据库迁移失败: %v", err)
 	}
 	log.Println("数据库迁移成功")

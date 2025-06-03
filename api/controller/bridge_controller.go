@@ -2,11 +2,12 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/kougami132/MsgPilot/models"
 	"github.com/kougami132/MsgPilot/usecase"
+	"github.com/kougami132/MsgPilot/internal/types"
 )
 
 // BridgeController 结构体，处理中转配置相关的HTTP请求
@@ -34,18 +35,20 @@ func (c *BridgeController) RegisterRoutes(router *gin.RouterGroup) {
 
 // CreateBridgeInput 定义了创建中转配置时的输入结构体
 type CreateBridgeInput struct {
-	Name            string `json:"name" binding:"required"`
-	SourceChannelID string `json:"source_channel_id" binding:"required,uuid4"`
-	TargetChannelID string `json:"target_channel_id" binding:"required,uuid4"`
-	IsActive        *bool  `json:"is_active"` // 使用指针以区分未提供和提供false的情况，默认为true
+	Name            	string 				`json:"name" binding:"required"`
+	Ticket          	string 				`json:"ticket" binding:"required"`
+	SourceChannelType 	types.ChannelType 	`json:"source_channel_type" binding:"required"`
+	TargetChannelID 	int    				`json:"target_channel_id" binding:"required"`
+	IsActive        	*bool  				`json:"is_active"` // 使用指针以区分未提供和提供false的情况，默认为true
 }
 
 // UpdateBridgeInput 定义了更新中转配置时的输入结构体
 type UpdateBridgeInput struct {
-	Name            string `json:"name,omitempty"`
-	SourceChannelID string `json:"source_channel_id,omitempty"` // omitempty允许部分更新
-	TargetChannelID string `json:"target_channel_id,omitempty"`
-	IsActive        *bool  `json:"is_active,omitempty"`
+	Name            	string 				`json:"name,omitempty"`
+	Ticket          	string 				`json:"ticket,omitempty"`
+	SourceChannelType 	types.ChannelType 	`json:"source_channel_type,omitempty"`
+	TargetChannelID 	int    				`json:"target_channel_id,omitempty"`
+	IsActive        	*bool  				`json:"is_active,omitempty"`
 }
 
 // CreateBridge godoc
@@ -72,11 +75,11 @@ func (c *BridgeController) CreateBridge(ctx *gin.Context) {
 	}
 
 	bridge := models.Bridge{
-		ID:              uuid.NewString(), // 由服务器生成ID
-		Name:            input.Name,
-		SourceChannelID: input.SourceChannelID,
-		TargetChannelID: input.TargetChannelID,
-		IsActive:        isActive,
+		Name:            	input.Name,
+		Ticket:          	input.Ticket,
+		SourceChannelType: 	input.SourceChannelType,
+		TargetChannelID: 	input.TargetChannelID,
+		IsActive:        	isActive,
 	}
 
 	if err := c.bridgeUsecase.CreateBridge(&bridge); err != nil {
@@ -114,10 +117,20 @@ func (c *BridgeController) GetAllBridges(ctx *gin.Context) {
 // @Failure 500 {object} map[string]string "服务器内部错误"
 // @Router /bridges/{id} [get]
 func (c *BridgeController) GetBridgeByID(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id, _ := strconv.Atoi(ctx.Param("id"))
 	bridge, err := c.bridgeUsecase.GetBridgeByID(id)
 	if err != nil {
 		// 假设usecase在找不到时会返回特定错误，或者这里可以检查错误类型
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "中转配置未找到或获取失败: " + err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, bridge)
+}
+
+func (c *BridgeController) GetBridgeByTicket(ctx *gin.Context) {
+	ticket := ctx.Param("ticket")
+	bridge, err := c.bridgeUsecase.GetBridgeByTicket(ticket)
+	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "中转配置未找到或获取失败: " + err.Error()})
 		return
 	}
@@ -138,7 +151,7 @@ func (c *BridgeController) GetBridgeByID(ctx *gin.Context) {
 // @Failure 500 {object} map[string]string "服务器内部错误"
 // @Router /bridges/{id} [put]
 func (c *BridgeController) UpdateBridge(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id, _ := strconv.Atoi(ctx.Param("id"))
 	var input UpdateBridgeInput
 	if err := ctx.ShouldBindJSON(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "无效的输入: " + err.Error()})
@@ -148,9 +161,10 @@ func (c *BridgeController) UpdateBridge(ctx *gin.Context) {
 	// 构造一个只包含要更新字段的 models.Bridge 对象
 	// Usecase 层将负责获取现有对象并应用这些更新
 	bridgeUpdates := models.Bridge{
-		Name:            input.Name,
-		SourceChannelID: input.SourceChannelID,
-		TargetChannelID: input.TargetChannelID,
+		Name:            	input.Name,
+		Ticket:          	input.Ticket,
+		SourceChannelType: 	input.SourceChannelType,
+		TargetChannelID: 	input.TargetChannelID,
 	}
 	// IsActive 的处理，只有当input.IsActive不为nil时才进行更新
 	if input.IsActive != nil {
@@ -185,7 +199,6 @@ func (c *BridgeController) UpdateBridge(ctx *gin.Context) {
 		// 然而，usecase的UpdateBridge方法参数是*models.Bridge，而不是部分更新结构。
 		// 因此，我们先获取当前的bridge，然后只更新输入中提供的字段。
 	}
-
 	updatedBridge, err := c.bridgeUsecase.UpdateBridge(id, &bridgeUpdates)
 	if err != nil {
 		// 错误处理可以更细致，例如区分未找到和更新失败
@@ -206,7 +219,7 @@ func (c *BridgeController) UpdateBridge(ctx *gin.Context) {
 // @Failure 500 {object} map[string]string "服务器内部错误"
 // @Router /bridges/{id} [delete]
 func (c *BridgeController) DeleteBridge(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id, _ := strconv.Atoi(ctx.Param("id"))
 	if err := c.bridgeUsecase.DeleteBridge(id); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "删除中转配置失败或中转配置未找到: " + err.Error()})
 		return

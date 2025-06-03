@@ -11,7 +11,7 @@ import (
 var channelRegistry = make(map[types.ChannelType]func(config datatypes.JSON) ChannelHandler)
 
 // 注册渠道类型
-func RegisterChannelType(
+func RegisterChannelHandler(
     typeName types.ChannelType, 
     creator func(config datatypes.JSON) ChannelHandler,
 ) {
@@ -19,7 +19,7 @@ func RegisterChannelType(
 }
 
 // 获取渠道类型
-func GetChannelType(channel models.Channel) (ChannelHandler, error) {
+func GetChannelHandler(channel models.Channel) (ChannelHandler, error) {
     creator, ok := channelRegistry[channel.Type]
     if !ok {
         return nil, fmt.Errorf("未注册的渠道类型: %s", channel.Type)

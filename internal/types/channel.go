@@ -24,10 +24,3 @@ const (
 	TypeNtfy       ChannelType = "Ntfy"       // Ntfy
 	TypeWxPusher   ChannelType = "WxPusher"   // WxPusher
 )
-
-// 方向类型
-type DirectionType string
-const (
-    DirectionSend 	 DirectionType = "Send"   	// 仅发送
-    DirectionReceive DirectionType = "Receive"  // 仅接收
-)

@@ -8,9 +8,9 @@ import (
 type ChannelUsecase interface {
 	CreateChannel(channel *models.Channel) error
 	GetAllChannels() ([]models.Channel, error)
-	GetChannelByID(id string) (*models.Channel, error)
+	GetChannelByID(id int) (*models.Channel, error)
 	UpdateChannel(channel *models.Channel) error
-	DeleteChannel(id string) error
+	DeleteChannel(id int) error
 }
 
 type channelUsecase struct {
@@ -29,7 +29,7 @@ func (u *channelUsecase) GetAllChannels() ([]models.Channel, error) {
 	return u.channelRepo.GetAll()
 }
 
-func (u *channelUsecase) GetChannelByID(id string) (*models.Channel, error) {
+func (u *channelUsecase) GetChannelByID(id int) (*models.Channel, error) {
 	return u.channelRepo.GetByID(id)
 }
 
@@ -37,6 +37,6 @@ func (u *channelUsecase) UpdateChannel(channel *models.Channel) error {
 	return u.channelRepo.Update(channel)
 }
 
-func (u *channelUsecase) DeleteChannel(id string) error {
+func (u *channelUsecase) DeleteChannel(id int) error {
 	return u.channelRepo.Delete(id)
 }

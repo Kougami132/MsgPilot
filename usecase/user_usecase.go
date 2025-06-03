@@ -9,10 +9,10 @@ import (
 type UserUsecase interface {
 	CreateUser(user *models.User) error
 	GetAllUsers() ([]models.User, error)
-	GetUserByID(id uint) (*models.User, error)
+	GetUserByID(id int) (*models.User, error)
 	GetUserByUsername(username string) (*models.User, error)
 	UpdateUser(user *models.User) error
-	DeleteUser(id uint) error
+	DeleteUser(id int) error
 	CheckPassword(username, password string) (*models.User, error)
 }
 
@@ -37,7 +37,7 @@ func (u *userUsecase) GetAllUsers() ([]models.User, error) {
 	return u.userRepo.GetAll()
 }
 
-func (u *userUsecase) GetUserByID(id uint) (*models.User, error) {
+func (u *userUsecase) GetUserByID(id int) (*models.User, error) {
 	return u.userRepo.GetByID(id)
 }
 
@@ -57,7 +57,7 @@ func (u *userUsecase) UpdateUser(user *models.User) error {
 	return u.userRepo.Update(user)
 }
 
-func (u *userUsecase) DeleteUser(id uint) error {
+func (u *userUsecase) DeleteUser(id int) error {
 	return u.userRepo.Delete(id)
 }
 

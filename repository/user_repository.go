@@ -8,10 +8,10 @@ import (
 type UserRepository interface {
 	Create(user *models.User) error
 	GetAll() ([]models.User, error)
-	GetByID(id uint) (*models.User, error)
+	GetByID(id int) (*models.User, error)
 	GetByUsername(username string) (*models.User, error)
 	Update(user *models.User) error
-	Delete(id uint) error
+	Delete(id int) error
 }
 
 type userRepository struct {
@@ -32,7 +32,7 @@ func (r *userRepository) GetAll() ([]models.User, error) {
 	return users, err
 }
 
-func (r *userRepository) GetByID(id uint) (*models.User, error) {
+func (r *userRepository) GetByID(id int) (*models.User, error) {
 	var user models.User
 	err := r.db.First(&user, id).Error // gorm会自动根据主键查询
 	if err != nil {
@@ -54,6 +54,6 @@ func (r *userRepository) Update(user *models.User) error {
 	return r.db.Save(user).Error
 }
 
-func (r *userRepository) Delete(id uint) error {
+func (r *userRepository) Delete(id int) error {
 	return r.db.Delete(&models.User{}, id).Error
 }

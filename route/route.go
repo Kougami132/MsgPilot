@@ -29,6 +29,9 @@ func Setup(app bootstrap.Application, deps *bootstrap.AppDependencies) *gin.Engi
 	// API路由组
 	apiGroup := router.Group("/api")
 
+	// 适配器路由组
+	deps.AdapterController.RegisterRoutes(apiGroup)
+
 	// 认证相关路由 (不需要 Token 验证)
 	deps.AuthController.RegisterRoutes(apiGroup) // AuthController 的路由注册在 /api/auth 下
 
@@ -37,9 +40,9 @@ func Setup(app bootstrap.Application, deps *bootstrap.AppDependencies) *gin.Engi
 	protectedRoutes.Use(middleware.AuthMiddleware(app))
 
 	// 为其他 Controller 注册路由到 protectedRoutes  
-	deps.ChannelController.RegisterRoutes(protectedRoutes) 
-	deps.ConfigController.RegisterRoutes(protectedRoutes)  
-	deps.MessageController.RegisterRoutes(protectedRoutes) 
+	deps.ChannelController.RegisterRoutes(protectedRoutes)
+	deps.BridgeController.RegisterRoutes(protectedRoutes)
+	deps.MessageController.RegisterRoutes(protectedRoutes)
 
 	return router
 }

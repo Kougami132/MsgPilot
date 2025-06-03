@@ -8,7 +8,7 @@ import (
 
 // User 用户模型
 type User struct {
-	ID        uint           `gorm:"primarykey" json:"id"`
+	ID        int            `gorm:"primarykey"               json:"id"`
 	Username  string         `gorm:"size:100;not null;unique" json:"username"`
 	Password  string         `gorm:"size:100;not null" json:"-"`
 	CreatedAt time.Time      `json:"created_at"`

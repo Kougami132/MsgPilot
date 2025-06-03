@@ -9,9 +9,10 @@ import (
 type BridgeRepository interface {
 	Create(bridge *models.Bridge) error
 	GetAll() ([]models.Bridge, error)
-	GetByID(id string) (*models.Bridge, error)
+	GetByID(id int) (*models.Bridge, error)
+	GetByTicket(ticket string) (*models.Bridge, error)
 	Update(bridge *models.Bridge) error
-	Delete(id string) error
+	Delete(id int) error
 }
 
 type bridgeRepository struct {
@@ -32,14 +33,24 @@ func (r *bridgeRepository) Create(bridge *models.Bridge) error {
 func (r *bridgeRepository) GetAll() ([]models.Bridge, error) {
 	var bridges []models.Bridge
 	// 预加载关联的 SourceChannel 和 TargetChannel
-	err := r.db.Preload("SourceChannel").Preload("TargetChannel").Find(&bridges).Error
+	err := r.db.Preload("TargetChannel").Find(&bridges).Error
 	return bridges, err
 }
 
 // GetByID 根据ID获取一个中转配置记录
-func (r *bridgeRepository) GetByID(id string) (*models.Bridge, error) {
+func (r *bridgeRepository) GetByID(id int) (*models.Bridge, error) {
 	var bridge models.Bridge
-	err := r.db.Preload("SourceChannel").Preload("TargetChannel").First(&bridge, "id = ?", id).Error
+	err := r.db.Preload("TargetChannel").First(&bridge, "id = ?", id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &bridge, nil
+}
+
+// GetByTicket 根据Ticket获取一个中转配置记录
+func (r *bridgeRepository) GetByTicket(ticket string) (*models.Bridge, error) {
+	var bridge models.Bridge
+	err := r.db.Preload("TargetChannel").First(&bridge, "ticket = ?", ticket).Error
 	if err != nil {
 		return nil, err
 	}
@@ -52,6 +63,6 @@ func (r *bridgeRepository) Update(bridge *models.Bridge) error {
 }
 
 // Delete 根据ID删除一个中转配置记录
-func (r *bridgeRepository) Delete(id string) error {
+func (r *bridgeRepository) Delete(id int) error {
 	return r.db.Delete(&models.Bridge{}, "id = ?", id).Error
 }

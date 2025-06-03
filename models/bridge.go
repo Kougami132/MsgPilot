@@ -2,19 +2,21 @@ package models
 
 import (
 	"time"
+
+	"github.com/kougami132/MsgPilot/internal/types"
 )
 
 // Bridge 桥接模型
 type Bridge struct {
-	ID              string    `gorm:"type:char(36);primaryKey" json:"id"`
-	Name            string    `gorm:"size:100;not null" json:"name"`
-	SourceChannelID string    `gorm:"type:char(36);not null"`
-	SourceChannel   Channel   `gorm:"foreignKey:SourceChannelID"`
-	TargetChannelID string    `gorm:"type:char(36);not null"`
-	TargetChannel   Channel   `gorm:"foreignKey:TargetChannelID"`
-	IsActive        bool      `gorm:"default:true" json:"is_active"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID                	int       			`gorm:"primaryKey"                  json:"id"`
+	Name              	string    			`gorm:"size:100;not null"           json:"name"`
+	Ticket            	string    			`gorm:"size:100;not null"           json:"ticket"`
+	SourceChannelType 	types.ChannelType   `gorm:"index"                       json:"source_channel_type"`
+	TargetChannelID   	int       			`gorm:"not null"                    json:"target_channel_id"`
+	TargetChannel     	Channel   			`gorm:"foreignKey:TargetChannelID"  json:"target_channel"`
+	IsActive          	bool      			`gorm:"default:true"                json:"is_active"`
+	CreatedAt         	time.Time 			`json:"created_at"`
+	UpdatedAt         	time.Time 			`json:"updated_at"`
 }
 
 func (Bridge) TableName() string {

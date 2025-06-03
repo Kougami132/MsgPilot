@@ -8,9 +8,9 @@ import (
 type ChannelRepository interface {
 	Create(channel *models.Channel) error
 	GetAll() ([]models.Channel, error)
-	GetByID(id string) (*models.Channel, error)
+	GetByID(id int) (*models.Channel, error)
 	Update(channel *models.Channel) error
-	Delete(id string) error
+	Delete(id int) error
 }
 
 type channelRepository struct {
@@ -31,7 +31,7 @@ func (r *channelRepository) GetAll() ([]models.Channel, error) {
 	return channels, err
 }
 
-func (r *channelRepository) GetByID(id string) (*models.Channel, error) {
+func (r *channelRepository) GetByID(id int) (*models.Channel, error) {
 	var channel models.Channel
 	err := r.db.First(&channel, "id = ?", id).Error
 	if err != nil {
@@ -44,6 +44,6 @@ func (r *channelRepository) Update(channel *models.Channel) error {
 	return r.db.Save(channel).Error
 }
 
-func (r *channelRepository) Delete(id string) error {
+func (r *channelRepository) Delete(id int) error {
 	return r.db.Delete(&models.Channel{}, "id = ?", id).Error
 }

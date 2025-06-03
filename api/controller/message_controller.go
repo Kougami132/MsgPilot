@@ -2,7 +2,8 @@ package controller
 
 import (
 	"net/http"
-
+	"strconv"
+	
 	"github.com/gin-gonic/gin"
 	"github.com/kougami132/MsgPilot/models"
 	"github.com/kougami132/MsgPilot/usecase"
@@ -50,7 +51,7 @@ func (c *MessageController) GetAllMessages(ctx *gin.Context) {
 }
 
 func (c *MessageController) GetMessageByID(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id, _ := strconv.Atoi(ctx.Param("id"))
 	message, err := c.messageUsecase.GetMessageByID(id)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
@@ -60,13 +61,13 @@ func (c *MessageController) GetMessageByID(ctx *gin.Context) {
 }
 
 func (c *MessageController) UpdateMessage(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id, _ := strconv.Atoi(ctx.Param("id"))
 	var message models.Message
 	if err := ctx.ShouldBindJSON(&message); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	message.ID = id // Ensure ID is set from path parameter
+	message.ID = id
 	if err := c.messageUsecase.UpdateMessage(&message); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -75,7 +76,7 @@ func (c *MessageController) UpdateMessage(ctx *gin.Context) {
 }
 
 func (c *MessageController) DeleteMessage(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id, _ := strconv.Atoi(ctx.Param("id"))
 	if err := c.messageUsecase.DeleteMessage(id); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -1,5 +1,7 @@
 package channels
 
+import "github.com/kougami132/MsgPilot/models"
+
 type ChannelHandler interface {
-    Send(content string) error
+    Send(message *models.Message) error
 }

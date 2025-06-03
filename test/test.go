@@ -10,15 +10,17 @@ import (
 
 func Test() {
 	testChannel := models.Channel {
-		ID: "1",
+		ID: 1,
 		Name: "test",
 		Type: "onebot",
-		Direction: "out",
 		Config: datatypes.JSON{},
 	}
-	onebot, err := channels.GetChannelType(testChannel)
+	onebot, err := channels.GetChannelHandler(testChannel)
 	if err != nil {
 		fmt.Println(err)
 	}
-	onebot.Send("test")
+	onebot.Send(&models.Message{
+		Title: "test",
+		Content: "test",
+	})
 }
