@@ -14,7 +14,6 @@ import (
 // TokenResponse 令牌响应
 type TokenResponse struct {
 	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
 	Expiry       int64  `json:"expiry"`
 }
 
@@ -22,7 +21,7 @@ type TokenResponse struct {
 type AuthUseCase interface {
 	Login(username, password string) (*TokenResponse, error)
 	Register(username, password string) (*TokenResponse, error)
-	RefreshToken(refreshToken string) (string, int64, error)
+	RefreshToken(token string) (string, int64, error)
 	ChangePassword(username, oldPassword, newPassword string) error
 }
 
@@ -59,16 +58,10 @@ func (u *AuthUseCaseImpl) Login(username, password string) (*TokenResponse, erro
 		return nil, errors.New("生成令牌失败")
 	}
 
-	refreshToken, err := utils.GenerateToken(user.Username, u.env.RefreshTokenSecret, u.env.RefreshTokenExpiryHour)
-	if err != nil {
-		return nil, errors.New("生成令牌失败")
-	}
-
 	expiryTimestamp := time.Now().Unix() + int64(u.env.AccessTokenExpiryHour*3600)
 
 	return &TokenResponse{
 		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
 		Expiry:       expiryTimestamp,
 	}, nil
 }
@@ -103,24 +96,18 @@ func (u *AuthUseCaseImpl) Register(username, password string) (*TokenResponse, e
 		return nil, errors.New("生成令牌失败")
 	}
 
-	refreshToken, err := utils.GenerateToken(user.Username, u.env.RefreshTokenSecret, u.env.RefreshTokenExpiryHour)
-	if err != nil {
-		return nil, errors.New("生成令牌失败")
-	}
-
 	expiryTimestamp := time.Now().Unix() + int64(u.env.AccessTokenExpiryHour*3600)
 
 	return &TokenResponse{
 		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
 		Expiry:       expiryTimestamp,
 	}, nil
 }
 
 // RefreshToken 刷新令牌
-func (u *AuthUseCaseImpl) RefreshToken(refreshToken string) (string, int64, error) {
+func (u *AuthUseCaseImpl) RefreshToken(token string) (string, int64, error) {
 	// 验证刷新令牌
-	claims, err := utils.ValidateToken(refreshToken, u.env.RefreshTokenSecret)
+	claims, err := utils.ValidateToken(token, u.env.AccessTokenSecret)
 	if err != nil {
 		return "", 0, errors.New("无效的刷新令牌")
 	}

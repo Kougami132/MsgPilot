@@ -89,7 +89,7 @@ func (c *AuthController) Register(ctx *gin.Context) {
 // RefreshToken 刷新令牌
 func (c *AuthController) RefreshToken(ctx *gin.Context) {
 	type RefreshRequest struct {
-		RefreshToken string `json:"refresh_token" binding:"required"`
+		Token string `json:"token" binding:"required"`
 	}
 
 	var req RefreshRequest
@@ -98,7 +98,7 @@ func (c *AuthController) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, expiry, err := c.authUseCase.RefreshToken(req.RefreshToken)
+	accessToken, expiry, err := c.authUseCase.RefreshToken(req.Token)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return

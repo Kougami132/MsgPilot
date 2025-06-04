@@ -5,7 +5,7 @@ type ChannelType string
 const (
 	TypeBark       ChannelType = "Bark"       // Bark
 	TypeDingTalk   ChannelType = "DingTalk"   // 钉钉机器人
-	TypeFSKey      ChannelType = "FSKey"      // 飞书机器人
+	TypeFeiShu     ChannelType = "FeiShu"     // 飞书机器人
 	TypeOneBot     ChannelType = "OneBot"     // OneBot
 	TypeGotify     ChannelType = "Gotify"     // Gotify
 	TypeServerChan ChannelType = "ServerChan" // Server酱

@@ -26,3 +26,12 @@ func GetChannelHandler(channel models.Channel) (ChannelHandler, error) {
     }
     return creator(channel.Config), nil
 }
+
+// GetRegisteredChannelTypes 获取所有已注册的渠道类型
+func GetRegisteredChannelTypes() []types.ChannelType {
+	types := make([]types.ChannelType, 0, len(channelRegistry))
+	for typeName := range channelRegistry {
+		types = append(types, typeName)
+	}
+	return types
+}

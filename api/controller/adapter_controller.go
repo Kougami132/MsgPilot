@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kougami132/MsgPilot/usecase"
+	"github.com/kougami132/MsgPilot/channels"
 )
 
 type AdapterController struct {
@@ -18,8 +19,17 @@ func NewAdapterController(adapterUsecase usecase.AdapterUsecase) *AdapterControl
 func (c *AdapterController) RegisterRoutes(router *gin.RouterGroup) {
 	adapterRoutes := router.Group("/adapter")
 	{
+		adapterRoutes.GET("/list", c.GetRegisteredChannelTypes)
 		adapterRoutes.Any("/:ticket/send_msg", c.OneBotSendMsg)
+		adapterRoutes.GET("/:ticket/:body", c.BarkSendMsgGet)
+		adapterRoutes.GET("/:ticket/:title/:body", c.BarkSendMsgGet)
+		adapterRoutes.GET("/:ticket/:title/:subtitle/:body", c.BarkSendMsgGet)
 	}
+}
+
+func (c *AdapterController) GetRegisteredChannelTypes(ctx *gin.Context) {
+	types := channels.GetRegisteredChannelTypes()
+	ctx.JSON(http.StatusOK, types)
 }
 
 func (c *AdapterController) OneBotSendMsg(ctx *gin.Context) {
@@ -54,3 +64,49 @@ func (c *AdapterController) OneBotSendMsg(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, message)
 }
+
+func (c *AdapterController) BarkSendMsgGet(ctx *gin.Context) {
+	// Get请求参数
+	ticket := ctx.Param("ticket")
+	title := ctx.Param("title")
+	subtitle := ctx.Param("subtitle")
+	body := ctx.Param("body")
+
+	// Post请求参数
+	// 从POST form获取
+	if title == "" && body == "" {
+		title = ctx.PostForm("title")
+		subtitle = ctx.PostForm("subtitle")
+		body = ctx.PostForm("body")
+	}
+
+	// 从JSON body获取
+	if title == "" && body == "" {
+		var jsonData struct {
+			Title string `json:"title"`
+			Subtitle string `json:"subtitle"`
+			Body  string `json:"body"`
+		}
+		if err := ctx.ShouldBindJSON(&jsonData); err == nil {
+			if title == "" {
+				title = jsonData.Title
+			}
+			if body == "" {
+				body = jsonData.Body
+			}
+		}
+	}
+
+	// 副标题合并到标题中
+	if subtitle != "" {
+		title = title + " - " + subtitle
+	}
+
+	message, err := c.adapterUsecase.BarkSendMessage(ticket, title, body)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, message)
+}
+

@@ -7,13 +7,11 @@ import (
 )
 
 type Env struct {
-	AppEnv                 string `mapstructure:"APP_ENV"`
-	Port                   string `mapstructure:"PORT"`
-	ContextTimeout         int    `mapstructure:"CONTEXT_TIMEOUT"`
-	AccessTokenExpiryHour  int    `mapstructure:"ACCESS_TOKEN_EXPIRY_HOUR"`
-	RefreshTokenExpiryHour int    `mapstructure:"REFRESH_TOKEN_EXPIRY_HOUR"`
-	AccessTokenSecret      string `mapstructure:"ACCESS_TOKEN_SECRET"`
-	RefreshTokenSecret     string `mapstructure:"REFRESH_TOKEN_SECRET"`
+	AppEnv                string `mapstructure:"APP_ENV"`
+	Port                  string `mapstructure:"PORT"`
+	ContextTimeout        int    `mapstructure:"CONTEXT_TIMEOUT"`
+	AccessTokenExpiryHour int    `mapstructure:"ACCESS_TOKEN_EXPIRY_HOUR"`
+	AccessTokenSecret     string `mapstructure:"ACCESS_TOKEN_SECRET"`
 }
 
 func NewEnv() *Env {

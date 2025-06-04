@@ -10,6 +10,7 @@ import (
 
 type AdapterUsecase interface {
 	OneBotSendMessage(ticket string, msg string) (*models.Message, error)
+	BarkSendMessage(ticket string, title string, body string) (*models.Message, error)
 }
 
 type adapterUsecase struct {
@@ -21,13 +22,18 @@ func NewAdapterUsecase(bridgeUsecase BridgeUsecase, messageUsecase MessageUsecas
 	return &adapterUsecase{bridgeUsecase: bridgeUsecase, messageUsecase: messageUsecase}
 }
 
-func (u *adapterUsecase) OneBotSendMessage(ticket string, msg string) (*models.Message, error) {
+// processAndSendMessage 是一个处理通用消息发送逻辑的私有辅助函数
+func (u *adapterUsecase) processAndSendMessage(
+	ticket string,
+	expectedSourceType types.ChannelType,
+	createMessageFunc func(bridge *models.Bridge) *models.Message,
+) (*models.Message, error) {
 	bridge, err := u.bridgeUsecase.GetBridgeByTicket(ticket)
 	if err != nil {
 		return nil, err
 	}
 
-	if bridge.SourceChannelType != types.TypeOneBot {
+	if bridge.SourceChannelType != expectedSourceType {
 		return nil, errors.New("中转源渠道不匹配")
 	}
 
@@ -35,14 +41,8 @@ func (u *adapterUsecase) OneBotSendMessage(ticket string, msg string) (*models.M
 		return nil, errors.New("中转配置未激活")
 	}
 
-	// 转换成通用消息
-	message := &models.Message{
-		Title:    "MsgPilot消息推送",
-		Content:  msg,
-		Status:   types.StatusPending,
-		BridgeID: bridge.ID,
-		Bridge:   *bridge,
-	}
+	message := createMessageFunc(bridge)
+
 	err = u.messageUsecase.CreateMessage(message)
 	if err != nil {
 		return nil, err
@@ -63,6 +63,32 @@ func (u *adapterUsecase) OneBotSendMessage(ticket string, msg string) (*models.M
 		}
 		u.messageUsecase.UpdateMessageStatus(message, types.StatusSuccess)
 	}()
-		
+
 	return message, nil
+}
+
+func (u *adapterUsecase) OneBotSendMessage(ticket string, msg string) (*models.Message, error) {
+	createFunc := func(bridge *models.Bridge) *models.Message {
+		return &models.Message{
+			Title:    "MsgPilot消息推送",
+			Content:  msg,
+			Status:   types.StatusPending,
+			BridgeID: bridge.ID,
+			Bridge:   *bridge,
+		}
+	}
+	return u.processAndSendMessage(ticket, types.TypeOneBot, createFunc)
+}
+
+func (u *adapterUsecase) BarkSendMessage(ticket string, title string, body string) (*models.Message, error) {
+	createFunc := func(bridge *models.Bridge) *models.Message {
+		return &models.Message{
+			Title:    title,
+			Content:  body,
+			Status:   types.StatusPending,
+			BridgeID: bridge.ID,
+			Bridge:   *bridge,
+		}
+	}
+	return u.processAndSendMessage(ticket, types.TypeBark, createFunc)
 }
