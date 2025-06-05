@@ -9,8 +9,10 @@ import (
 )
 
 type AdapterUsecase interface {
-	OneBotSendMessage(ticket string, msg string) (*models.Message, error)
-	BarkSendMessage(ticket string, title string, body string) (*models.Message, error)
+	TestPush(channel models.Channel) error
+	OneBotPush(ticket string, msg string) (*models.Message, error)
+	BarkPush(ticket string, title string, body string) (*models.Message, error)
+	GotifyPush(ticket string, title string, msg string) (*models.Message, error)
 }
 
 type adapterUsecase struct {
@@ -22,8 +24,27 @@ func NewAdapterUsecase(bridgeUsecase BridgeUsecase, messageUsecase MessageUsecas
 	return &adapterUsecase{bridgeUsecase: bridgeUsecase, messageUsecase: messageUsecase}
 }
 
-// processAndSendMessage 是一个处理通用消息发送逻辑的私有辅助函数
-func (u *adapterUsecase) processAndSendMessage(
+func (u *adapterUsecase) TestPush(channel models.Channel) error {
+	testMessage := &models.Message{
+		Title:    "MsgPilot消息推送",
+		Content:  "测试消息",
+	}
+
+	// 发送消息
+	handler, err := channels.GetChannelHandler(channel)
+	if err != nil {
+		return err
+	}
+	err = handler.Send(testMessage)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// processPush 是一个处理通用消息发送逻辑的私有辅助函数
+func (u *adapterUsecase) processPush(
 	ticket string,
 	expectedSourceType types.ChannelType,
 	createMessageFunc func(bridge *models.Bridge) *models.Message,
@@ -67,7 +88,7 @@ func (u *adapterUsecase) processAndSendMessage(
 	return message, nil
 }
 
-func (u *adapterUsecase) OneBotSendMessage(ticket string, msg string) (*models.Message, error) {
+func (u *adapterUsecase) OneBotPush(ticket string, msg string) (*models.Message, error) {
 	createFunc := func(bridge *models.Bridge) *models.Message {
 		return &models.Message{
 			Title:    "MsgPilot消息推送",
@@ -77,10 +98,10 @@ func (u *adapterUsecase) OneBotSendMessage(ticket string, msg string) (*models.M
 			Bridge:   *bridge,
 		}
 	}
-	return u.processAndSendMessage(ticket, types.TypeOneBot, createFunc)
+	return u.processPush(ticket, types.TypeOneBot, createFunc)
 }
 
-func (u *adapterUsecase) BarkSendMessage(ticket string, title string, body string) (*models.Message, error) {
+func (u *adapterUsecase) BarkPush(ticket string, title string, body string) (*models.Message, error) {
 	createFunc := func(bridge *models.Bridge) *models.Message {
 		return &models.Message{
 			Title:    title,
@@ -90,5 +111,19 @@ func (u *adapterUsecase) BarkSendMessage(ticket string, title string, body strin
 			Bridge:   *bridge,
 		}
 	}
-	return u.processAndSendMessage(ticket, types.TypeBark, createFunc)
+	return u.processPush(ticket, types.TypeBark, createFunc)
 }
+
+func (u *adapterUsecase) GotifyPush(ticket string, title string, msg string) (*models.Message, error) {
+	createFunc := func(bridge *models.Bridge) *models.Message {
+		return &models.Message{
+			Title:    title,
+			Content:  msg,
+			Status:   types.StatusPending,
+			BridgeID: bridge.ID,
+			Bridge:   *bridge,
+		}
+	}
+	return u.processPush(ticket, types.TypeGotify, createFunc)
+}
+
