@@ -50,6 +50,7 @@ func (h *OneBotHandler) Send(message *models.Message) error {
 }
 
 func init() {
+	RegisterChannelAdapter(types.TypeOneBot)
 	RegisterChannelHandler(types.TypeOneBot, func(config datatypes.JSON) ChannelHandler {
 		return &OneBotHandler{config: config}
 	})

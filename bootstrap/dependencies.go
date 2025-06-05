@@ -28,14 +28,14 @@ func NewAppDependencies(app Application) *AppDependencies {
 	channelUseCase := usecase.NewChannelUsecase(channelRepo)
 	messageUseCase := usecase.NewMessageUsecase(messageRepo)
 	bridgeUsecase := usecase.NewBridgeUsecase(bridgeRepo, channelRepo)
-	adapterUsecase := usecase.NewAdapterUsecase(bridgeUsecase, messageUseCase)
+	handlerUsecase := usecase.NewHandlerUsecase(bridgeUsecase, messageUseCase)
 
 	// 初始化控制器
 	authController := controller.NewAuthController(authUseCase, app.Env)
 	channelController := controller.NewChannelController(channelUseCase)
 	messageController := controller.NewMessageController(messageUseCase)
 	bridgeController := controller.NewBridgeController(bridgeUsecase)
-	adapterController := controller.NewAdapterController(adapterUsecase)
+	adapterController := controller.NewAdapterController(handlerUsecase)
 
 	return &AppDependencies{
 		AuthController:    authController,

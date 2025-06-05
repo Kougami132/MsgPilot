@@ -45,6 +45,7 @@ func (h *GotifyHandler) Send(message *models.Message) error {
 }
 
 func init() {
+	RegisterChannelAdapter(types.TypeGotify)
 	RegisterChannelHandler(types.TypeGotify, func(config datatypes.JSON) ChannelHandler {
 		return &GotifyHandler{config: config}
 	})

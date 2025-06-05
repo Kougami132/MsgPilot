@@ -8,23 +8,24 @@ import (
 	"github.com/kougami132/MsgPilot/models"
 )
 
-type AdapterUsecase interface {
+type HandlerUsecase interface {
 	TestPush(channel models.Channel) error
 	OneBotPush(ticket string, msg string) (*models.Message, error)
 	BarkPush(ticket string, title string, body string) (*models.Message, error)
 	GotifyPush(ticket string, title string, msg string) (*models.Message, error)
+	PushDeerPush(ticket string, title string, msg string) (*models.Message, error)
 }
 
-type adapterUsecase struct {
+type handlerUsecase struct {
 	bridgeUsecase  BridgeUsecase
 	messageUsecase MessageUsecase
 }
 
-func NewAdapterUsecase(bridgeUsecase BridgeUsecase, messageUsecase MessageUsecase) AdapterUsecase {
-	return &adapterUsecase{bridgeUsecase: bridgeUsecase, messageUsecase: messageUsecase}
+func NewHandlerUsecase(bridgeUsecase BridgeUsecase, messageUsecase MessageUsecase) HandlerUsecase {
+	return &handlerUsecase{bridgeUsecase: bridgeUsecase, messageUsecase: messageUsecase}
 }
 
-func (u *adapterUsecase) TestPush(channel models.Channel) error {
+func (u *handlerUsecase) TestPush(channel models.Channel) error {
 	testMessage := &models.Message{
 		Title:    "MsgPilot消息推送",
 		Content:  "测试消息",
@@ -44,7 +45,7 @@ func (u *adapterUsecase) TestPush(channel models.Channel) error {
 }
 
 // processPush 是一个处理通用消息发送逻辑的私有辅助函数
-func (u *adapterUsecase) processPush(
+func (u *handlerUsecase) processPush(
 	ticket string,
 	expectedSourceType types.ChannelType,
 	createMessageFunc func(bridge *models.Bridge) *models.Message,
@@ -88,7 +89,7 @@ func (u *adapterUsecase) processPush(
 	return message, nil
 }
 
-func (u *adapterUsecase) OneBotPush(ticket string, msg string) (*models.Message, error) {
+func (u *handlerUsecase) OneBotPush(ticket string, msg string) (*models.Message, error) {
 	createFunc := func(bridge *models.Bridge) *models.Message {
 		return &models.Message{
 			Title:    "MsgPilot消息推送",
@@ -101,7 +102,7 @@ func (u *adapterUsecase) OneBotPush(ticket string, msg string) (*models.Message,
 	return u.processPush(ticket, types.TypeOneBot, createFunc)
 }
 
-func (u *adapterUsecase) BarkPush(ticket string, title string, body string) (*models.Message, error) {
+func (u *handlerUsecase) BarkPush(ticket string, title string, body string) (*models.Message, error) {
 	createFunc := func(bridge *models.Bridge) *models.Message {
 		return &models.Message{
 			Title:    title,
@@ -114,7 +115,7 @@ func (u *adapterUsecase) BarkPush(ticket string, title string, body string) (*mo
 	return u.processPush(ticket, types.TypeBark, createFunc)
 }
 
-func (u *adapterUsecase) GotifyPush(ticket string, title string, msg string) (*models.Message, error) {
+func (u *handlerUsecase) GotifyPush(ticket string, title string, msg string) (*models.Message, error) {
 	createFunc := func(bridge *models.Bridge) *models.Message {
 		return &models.Message{
 			Title:    title,
@@ -125,5 +126,18 @@ func (u *adapterUsecase) GotifyPush(ticket string, title string, msg string) (*m
 		}
 	}
 	return u.processPush(ticket, types.TypeGotify, createFunc)
+}
+
+func (u *handlerUsecase) PushDeerPush(ticket string, title string, msg string) (*models.Message, error) {
+	createFunc := func(bridge *models.Bridge) *models.Message {
+		return &models.Message{
+			Title:    title,
+			Content:  msg,
+			Status:   types.StatusPending,
+			BridgeID: bridge.ID,
+			Bridge:   *bridge,
+		}
+	}
+	return u.processPush(ticket, types.TypePushDeer, createFunc)
 }
 

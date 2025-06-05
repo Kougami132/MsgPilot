@@ -15,7 +15,7 @@ type BarkHandler struct {
 	config datatypes.JSON
 }
 
-type BarkConfig struct {
+type BarkConfig struct { 
 	BaseUrl string `json:"base_url"`
 	Key     string `json:"key"`
 	Sound   string `json:"sound"`
@@ -50,6 +50,7 @@ func (h *BarkHandler) Send(message *models.Message) error {
 }
 
 func init() {
+	RegisterChannelAdapter(types.TypeBark)
 	RegisterChannelHandler(types.TypeBark, func(config datatypes.JSON) ChannelHandler {
 		return &BarkHandler{config: config}
 	})

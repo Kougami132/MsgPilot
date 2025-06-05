@@ -11,17 +11,17 @@ import (
 )
 
 type AdapterController struct {
-	adapterUsecase usecase.AdapterUsecase
+	handlerUsecase usecase.HandlerUsecase
 }
 
-func NewAdapterController(adapterUsecase usecase.AdapterUsecase) *AdapterController {
-	return &AdapterController{adapterUsecase: adapterUsecase}
+func NewAdapterController(handlerUsecase usecase.HandlerUsecase) *AdapterController {
+	return &AdapterController{handlerUsecase: handlerUsecase}
 }
 
 func (c *AdapterController) RegisterRoutes(router *gin.RouterGroup) {
 	adapterRoutes := router.Group("/adapter")
 	{
-		adapterRoutes.GET("/list", c.GetRegisteredChannelTypes)
+		adapterRoutes.GET("/list", c.GetChannels)
 		adapterRoutes.POST("/test", c.TestPush)
 	}
 	onebotRoutes := router.Group("/onebot")
@@ -39,11 +39,19 @@ func (c *AdapterController) RegisterRoutes(router *gin.RouterGroup) {
 	{
 		gotifyRoutes.POST("/message", c.GotifySendMsg)
 	}
+	pushdeerRoutes := router.Group("/pushdeer")
+	{
+		pushdeerRoutes.POST("/message/push", c.PushDeerSendMsg)
+	}
 }
 
-func (c *AdapterController) GetRegisteredChannelTypes(ctx *gin.Context) {
-	types := channels.GetRegisteredChannelTypes()
-	ctx.JSON(http.StatusOK, types)
+func (c *AdapterController) GetChannels(ctx *gin.Context) {
+	adapters := channels.GetChannelAdapters()
+	handlers := channels.GetChannelHandlers()
+	ctx.JSON(http.StatusOK, gin.H{
+		"adapters": adapters,
+		"handlers": handlers,
+	})
 }
 
 func (c *AdapterController) TestPush(ctx *gin.Context) {
@@ -52,7 +60,7 @@ func (c *AdapterController) TestPush(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := c.adapterUsecase.TestPush(channel)
+	err := c.handlerUsecase.TestPush(channel)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -87,7 +95,7 @@ func (c *AdapterController) OneBotSendMsg(ctx *gin.Context) {
 	}
 
 	// 调用usecase处理消息
-	message, err := c.adapterUsecase.OneBotPush(ticket, msg)
+	message, err := c.handlerUsecase.OneBotPush(ticket, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -158,7 +166,7 @@ func (c *AdapterController) BarkSendMsg(ctx *gin.Context) {
 		title = title + " - " + subtitle
 	}
 
-	message, err := c.adapterUsecase.BarkPush(ticket, title, body)
+	message, err := c.handlerUsecase.BarkPush(ticket, title, body)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -172,11 +180,25 @@ func (c *AdapterController) GotifySendMsg(ctx *gin.Context) {
 	title := ctx.PostForm("title")
 	msg := ctx.PostForm("message")
 
-	message, err := c.adapterUsecase.GotifyPush(ticket, title, msg)
+	message, err := c.handlerUsecase.GotifyPush(ticket, title, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, message)
 }
+
+func (c *AdapterController) PushDeerSendMsg(ctx *gin.Context) {
+	ticket := ctx.PostForm("token")
+	title := ctx.PostForm("text")
+	msg := ctx.PostForm("desp")
+
+	message, err := c.handlerUsecase.PushDeerPush(ticket, title, msg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, message)
+}
+
 
