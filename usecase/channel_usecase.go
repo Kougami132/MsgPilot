@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/kougami132/MsgPilot/channels"
 	"github.com/kougami132/MsgPilot/models"
 	"github.com/kougami132/MsgPilot/repository"
 )
@@ -11,6 +12,7 @@ type ChannelUsecase interface {
 	GetChannelByID(id int) (*models.Channel, error)
 	UpdateChannel(channel *models.Channel) error
 	DeleteChannel(id int) error
+	TestPush(channel models.Channel) error
 }
 
 type channelUsecase struct {
@@ -39,4 +41,24 @@ func (u *channelUsecase) UpdateChannel(channel *models.Channel) error {
 
 func (u *channelUsecase) DeleteChannel(id int) error {
 	return u.channelRepo.Delete(id)
+}
+
+
+func (u *channelUsecase) TestPush(channel models.Channel) error {
+	testMessage := &models.Message{
+		Title:    "MsgPilot消息推送",
+		Content:  "测试消息",
+	}
+
+	// 发送消息
+	handler, err := channels.GetChannelHandler(channel)
+	if err != nil {
+		return err
+	}
+	err = handler.Send(testMessage)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

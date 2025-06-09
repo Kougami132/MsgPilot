@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/kougami132/MsgPilot/usecase"
 	"github.com/kougami132/MsgPilot/channels"
-	"github.com/kougami132/MsgPilot/models"
 )
 
 type AdapterController struct {
@@ -22,7 +21,6 @@ func (c *AdapterController) RegisterRoutes(router *gin.RouterGroup) {
 	adapterRoutes := router.Group("/adapter")
 	{
 		adapterRoutes.GET("/list", c.GetChannels)
-		adapterRoutes.POST("/test", c.TestPush)
 	}
 	onebotRoutes := router.Group("/onebot")
 	{
@@ -52,20 +50,6 @@ func (c *AdapterController) GetChannels(ctx *gin.Context) {
 		"adapters": adapters,
 		"handlers": handlers,
 	})
-}
-
-func (c *AdapterController) TestPush(ctx *gin.Context) {
-	var channel models.Channel
-	if err := ctx.ShouldBindJSON(&channel); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	err := c.handlerUsecase.TestPush(channel)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "测试成功"})
 }
 
 func (c *AdapterController) OneBotSendMsg(ctx *gin.Context) {

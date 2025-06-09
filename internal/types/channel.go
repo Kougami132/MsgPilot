@@ -11,12 +11,11 @@ const (
 	TypeServerChan ChannelType = "ServerChan" // Server酱
 	TypePushDeer   ChannelType = "PushDeer"   // PushDeer
 	TypeSynology   ChannelType = "Synology"   // 群晖chat
+	TypeIYUU       ChannelType = "IYUU"       // IYUU
 	TypePushPlus   ChannelType = "PushPlus"   // PushPlus
-	TypeWePlus     ChannelType = "WePlus"     // 微加机器人
 	TypeQMSG       ChannelType = "QMSG"       // Qmsg酱
 	TypeWeCom      ChannelType = "WeCom"      // 企业微信
 	TypeTelegram   ChannelType = "Telegram"   // Telegram
-	TypeAIBOTK     ChannelType = "AIBOTK"     // 智能微秘书
 	TypeEmail      ChannelType = "Email"      // 邮箱
 	TypePushMe     ChannelType = "PushMe"     // PushMe
 	TypeChronocat  ChannelType = "Chronocat"  // Chronocat

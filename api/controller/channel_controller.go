@@ -24,6 +24,7 @@ func (c *ChannelController) RegisterRoutes(router *gin.RouterGroup) {
 		channelRoutes.GET("/get/:id", c.GetChannelByID)
 		channelRoutes.PUT("/update/:id", c.UpdateChannel)
 		channelRoutes.DELETE("/delete/:id", c.DeleteChannel)
+		channelRoutes.POST("/test", c.TestPush)
 	}
 }
 
@@ -81,4 +82,18 @@ func (c *ChannelController) DeleteChannel(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Channel deleted successfully"})
+}
+
+func (c *ChannelController) TestPush(ctx *gin.Context) {
+	var channel models.Channel
+	if err := ctx.ShouldBindJSON(&channel); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err := c.channelUsecase.TestPush(channel)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"message": "测试成功"})
 }

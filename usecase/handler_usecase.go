@@ -9,7 +9,6 @@ import (
 )
 
 type HandlerUsecase interface {
-	TestPush(channel models.Channel) error
 	OneBotPush(ticket string, msg string) (*models.Message, error)
 	BarkPush(ticket string, title string, body string) (*models.Message, error)
 	GotifyPush(ticket string, title string, msg string) (*models.Message, error)
@@ -23,25 +22,6 @@ type handlerUsecase struct {
 
 func NewHandlerUsecase(bridgeUsecase BridgeUsecase, messageUsecase MessageUsecase) HandlerUsecase {
 	return &handlerUsecase{bridgeUsecase: bridgeUsecase, messageUsecase: messageUsecase}
-}
-
-func (u *handlerUsecase) TestPush(channel models.Channel) error {
-	testMessage := &models.Message{
-		Title:    "MsgPilot消息推送",
-		Content:  "测试消息",
-	}
-
-	// 发送消息
-	handler, err := channels.GetChannelHandler(channel)
-	if err != nil {
-		return err
-	}
-	err = handler.Send(testMessage)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // processPush 是一个处理通用消息发送逻辑的私有辅助函数
