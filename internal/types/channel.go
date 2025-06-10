@@ -17,8 +17,6 @@ const (
 	TypeWeCom      ChannelType = "WeCom"      // 企业微信
 	TypeTelegram   ChannelType = "Telegram"   // Telegram
 	TypeEmail      ChannelType = "Email"      // 邮箱
-	TypePushMe     ChannelType = "PushMe"     // PushMe
-	TypeChronocat  ChannelType = "Chronocat"  // Chronocat
 	TypeWebhook    ChannelType = "Webhook"    // Webhook
 	TypeNtfy       ChannelType = "Ntfy"       // Ntfy
 	TypeWxPusher   ChannelType = "WxPusher"   // WxPusher

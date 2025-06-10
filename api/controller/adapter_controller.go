@@ -41,6 +41,15 @@ func (c *AdapterController) RegisterRoutes(router *gin.RouterGroup) {
 	{
 		pushdeerRoutes.POST("/message/push", c.PushDeerSendMsg)
 	}
+	ntfyRoutes := router.Group("/ntfy")
+	{
+		ntfyRoutes.POST("/:ticket", c.NtfySendMsg)
+	}
+	webhookRoutes := router.Group("/webhook")
+	{
+		webhookRoutes.GET("/:ticket", c.WebhookSendMsg)
+		webhookRoutes.POST("/:ticket", c.WebhookSendMsg)
+	}
 }
 
 func (c *AdapterController) GetChannels(ctx *gin.Context) {
@@ -150,7 +159,7 @@ func (c *AdapterController) BarkSendMsg(ctx *gin.Context) {
 		title = title + " - " + subtitle
 	}
 
-	message, err := c.handlerUsecase.BarkPush(ticket, title, body)
+	message, err := c.handlerUsecase.CommonPush(ticket, title, body)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -164,7 +173,7 @@ func (c *AdapterController) GotifySendMsg(ctx *gin.Context) {
 	title := ctx.PostForm("title")
 	msg := ctx.PostForm("message")
 
-	message, err := c.handlerUsecase.GotifyPush(ticket, title, msg)
+	message, err := c.handlerUsecase.CommonPush(ticket, title, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -177,7 +186,7 @@ func (c *AdapterController) PushDeerSendMsg(ctx *gin.Context) {
 	title := ctx.PostForm("text")
 	msg := ctx.PostForm("desp")
 
-	message, err := c.handlerUsecase.PushDeerPush(ticket, title, msg)
+	message, err := c.handlerUsecase.CommonPush(ticket, title, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -185,4 +194,50 @@ func (c *AdapterController) PushDeerSendMsg(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, message)
 }
 
+func (c *AdapterController) NtfySendMsg(ctx *gin.Context) {
+	ticket := ctx.Param("ticket")
+	title := ctx.GetHeader("Title")
+	if title == "" {
+		title = ctx.PostForm("title")
+	}
+	msg := ctx.PostForm("message")
 
+	if ticket == "" && title == "" && msg == "" {
+		var jsonData struct {
+			Topic   string `json:"topic"`
+			Title   string `json:"title"`
+			Message string `json:"message"`
+		}
+		if err := ctx.ShouldBindJSON(&jsonData); err == nil {
+			ticket = jsonData.Topic
+			title = jsonData.Title
+			msg = jsonData.Message
+		}
+	}
+
+	message, err := c.handlerUsecase.CommonPush(ticket, title, msg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, message)
+}
+
+func (c *AdapterController) WebhookSendMsg(ctx *gin.Context) {
+	ticket := ctx.Param("ticket")
+	title := ctx.Query("title")
+	if title == "" {
+		title = ctx.PostForm("title")
+	}
+	msg := ctx.Query("message")
+	if msg == "" {
+		msg = ctx.PostForm("message")
+	}
+
+	message, err := c.handlerUsecase.CommonPush(ticket, title, msg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, message)
+}

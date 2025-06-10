@@ -9,10 +9,8 @@ import (
 )
 
 type HandlerUsecase interface {
+	CommonPush(ticket string, title string, msg string) (*models.Message, error)
 	OneBotPush(ticket string, msg string) (*models.Message, error)
-	BarkPush(ticket string, title string, body string) (*models.Message, error)
-	GotifyPush(ticket string, title string, msg string) (*models.Message, error)
-	PushDeerPush(ticket string, title string, msg string) (*models.Message, error)
 }
 
 type handlerUsecase struct {
@@ -82,7 +80,7 @@ func (u *handlerUsecase) OneBotPush(ticket string, msg string) (*models.Message,
 	return u.processPush(ticket, types.TypeOneBot, createFunc)
 }
 
-func (u *handlerUsecase) BarkPush(ticket string, title string, body string) (*models.Message, error) {
+func (u *handlerUsecase) CommonPush(ticket string, title string, body string) (*models.Message, error) {
 	createFunc := func(bridge *models.Bridge) *models.Message {
 		return &models.Message{
 			Title:    title,
@@ -94,30 +92,3 @@ func (u *handlerUsecase) BarkPush(ticket string, title string, body string) (*mo
 	}
 	return u.processPush(ticket, types.TypeBark, createFunc)
 }
-
-func (u *handlerUsecase) GotifyPush(ticket string, title string, msg string) (*models.Message, error) {
-	createFunc := func(bridge *models.Bridge) *models.Message {
-		return &models.Message{
-			Title:    title,
-			Content:  msg,
-			Status:   types.StatusPending,
-			BridgeID: bridge.ID,
-			Bridge:   *bridge,
-		}
-	}
-	return u.processPush(ticket, types.TypeGotify, createFunc)
-}
-
-func (u *handlerUsecase) PushDeerPush(ticket string, title string, msg string) (*models.Message, error) {
-	createFunc := func(bridge *models.Bridge) *models.Message {
-		return &models.Message{
-			Title:    title,
-			Content:  msg,
-			Status:   types.StatusPending,
-			BridgeID: bridge.ID,
-			Bridge:   *bridge,
-		}
-	}
-	return u.processPush(ticket, types.TypePushDeer, createFunc)
-}
-
