@@ -52,6 +52,14 @@ func (c *AdapterController) RegisterRoutes(router *gin.RouterGroup) {
 	}
 }
 
+// GetChannels godoc
+// @Summary 获取所有适配器列表
+// @Description 获取所有适配器列表
+// @Tags Adapter
+// @Accept json
+// @Produce json
+// @Success 200 {object} object "ok"
+// @Router /api/adapter/list [get]
 func (c *AdapterController) GetChannels(ctx *gin.Context) {
 	adapters := channels.GetChannelAdapters()
 	handlers := channels.GetChannelHandlers()
@@ -61,6 +69,16 @@ func (c *AdapterController) GetChannels(ctx *gin.Context) {
 	})
 }
 
+// OneBotSendMsg godoc
+// @Summary 接收OneBot消息
+// @Description 接收OneBot消息
+// @Tags Adapter
+// @Accept json
+// @Produce json
+// @Param ticket path string true "Ticket"
+// @Param message formData string false "Message"
+// @Success 200 {object} object "ok"
+// @Router /api/onebot/{ticket}/send_msg [post]
 func (c *AdapterController) OneBotSendMsg(ctx *gin.Context) {
 	ticket := ctx.Param("ticket")
 
@@ -96,6 +114,18 @@ func (c *AdapterController) OneBotSendMsg(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, message)
 }
 
+// BarkSendMsg godoc
+// @Summary 接收Bark消息
+// @Description 接收Bark消息
+// @Tags Adapter
+// @Accept json
+// @Produce json
+// @Param ticket path string true "Ticket"
+// @Param title formData string false "Title"
+// @Param subtitle formData string false "Subtitle"
+// @Param body formData string false "Body"
+// @Success 200 {object} object "ok"
+// @Router /api/bark/{ticket}/push [post]
 func (c *AdapterController) BarkSendMsg(ctx *gin.Context) {
 	ticket := ctx.Param("ticket")
 
@@ -167,6 +197,17 @@ func (c *AdapterController) BarkSendMsg(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, message)
 }
 
+// GotifySendMsg godoc
+// @Summary 接收Gotify消息
+// @Description 接收Gotify消息
+// @Tags Adapter
+// @Accept json
+// @Produce json
+// @Param token query string true "Token"
+// @Param title formData string false "Title"
+// @Param message formData string false "Message"
+// @Success 200 {object} object "ok"
+// @Router /api/gotify/message [post]
 func (c *AdapterController) GotifySendMsg(ctx *gin.Context) {
 	ticket := ctx.Query("token")
 
@@ -181,6 +222,17 @@ func (c *AdapterController) GotifySendMsg(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, message)
 }
 
+// PushDeerSendMsg godoc
+// @Summary 接收PushDeer消息
+// @Description 接收PushDeer消息
+// @Tags Adapter
+// @Accept json
+// @Produce json
+// @Param token formData string true "Token"
+// @Param text formData string false "Text"
+// @Param desp formData string false "Desp"
+// @Success 200 {object} object "ok"
+// @Router /api/pushdeer/message/push [post]
 func (c *AdapterController) PushDeerSendMsg(ctx *gin.Context) {
 	ticket := ctx.PostForm("token")
 	title := ctx.PostForm("text")
@@ -194,6 +246,17 @@ func (c *AdapterController) PushDeerSendMsg(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, message)
 }
 
+// NtfySendMsg godoc
+// @Summary 接收Ntfy消息
+// @Description 接收Ntfy消息
+// @Tags Adapter
+// @Accept json
+// @Produce json
+// @Param ticket path string true "Ticket"
+// @Param title formData string false "Title"
+// @Param message formData string false "Message"
+// @Success 200 {object} object "ok"
+// @Router /api/ntfy/{ticket} [post]
 func (c *AdapterController) NtfySendMsg(ctx *gin.Context) {
 	ticket := ctx.Param("ticket")
 	title := ctx.GetHeader("Title")
@@ -223,6 +286,17 @@ func (c *AdapterController) NtfySendMsg(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, message)
 }
 
+// WebhookSendMsg godoc
+// @Summary 接收Webhook消息
+// @Description 接收Webhook消息
+// @Tags Adapter
+// @Accept json
+// @Produce json
+// @Param ticket path string true "Ticket"
+// @Param title formData string false "Title"
+// @Param message formData string false "Message"
+// @Success 200 {object} object "ok"
+// @Router /api/webhook/{ticket} [post]
 func (c *AdapterController) WebhookSendMsg(ctx *gin.Context) {
 	ticket := ctx.Param("ticket")
 	title := ctx.Query("title")

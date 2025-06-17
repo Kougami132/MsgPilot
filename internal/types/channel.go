@@ -1,6 +1,6 @@
 package types
 
-// 渠道类型
+// ChannelType 渠道类型
 type ChannelType string
 const (
 	TypeBark       ChannelType = "Bark"       // Bark

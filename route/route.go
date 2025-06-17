@@ -4,6 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/kougami132/MsgPilot/api/middleware"
 	"github.com/kougami132/MsgPilot/bootstrap"
+
+	_ "github.com/kougami132/MsgPilot/docs"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // Setup 配置和返回 Gin 路由器
@@ -28,6 +32,9 @@ func Setup(app bootstrap.Application, deps *bootstrap.AppDependencies) *gin.Engi
 
 	// API路由组
 	apiGroup := router.Group("/api")
+
+	// 添加 Swagger 路由
+	apiGroup.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 适配器路由组
 	deps.AdapterController.RegisterRoutes(apiGroup)

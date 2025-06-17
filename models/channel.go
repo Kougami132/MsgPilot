@@ -7,7 +7,7 @@ import (
 	"github.com/kougami132/MsgPilot/internal/types"
 )
 
-// 渠道模型
+// Channel 渠道模型
 type Channel struct {
     ID          int                 `gorm:"primaryKey"                      json:"id"` // UUID
     Name        string              `gorm:"type:varchar(100);uniqueIndex"   json:"name"` // 渠道名称（如：Email-SMTP、OneBot-v11）

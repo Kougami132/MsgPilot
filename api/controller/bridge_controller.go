@@ -33,7 +33,7 @@ func (c *BridgeController) RegisterRoutes(router *gin.RouterGroup) {
 	}
 }
 
-// CreateBridgeInput 定义了创建中转配置时的输入结构体
+// CreateBridgeInput 创建中转配置时的输入结构体
 type CreateBridgeInput struct {
 	Name            	string 				`json:"name" binding:"required"`
 	Ticket          	string 				`json:"ticket" binding:"required"`
@@ -42,7 +42,7 @@ type CreateBridgeInput struct {
 	IsActive        	*bool  				`json:"is_active"` // 使用指针以区分未提供和提供false的情况，默认为true
 }
 
-// UpdateBridgeInput 定义了更新中转配置时的输入结构体
+// UpdateBridgeInput 更新中转配置时的输入结构体
 type UpdateBridgeInput struct {
 	Name            	string 				`json:"name,omitempty"`
 	Ticket          	string 				`json:"ticket,omitempty"`
@@ -54,14 +54,15 @@ type UpdateBridgeInput struct {
 // CreateBridge godoc
 // @Summary 创建中转配置
 // @Description 创建一个新的消息中转配置。`is_active`默认为true（如果未提供）。
-// @Tags Bridges
+// @Tags Bridge
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Authorization"
 // @Param bridge body CreateBridgeInput true "Bridge Create Object"
 // @Success 201 {object} models.Bridge
 // @Failure 400 {object} map[string]string "无效的输入或验证错误"
 // @Failure 500 {object} map[string]string "服务器内部错误"
-// @Router /bridges [post]
+// @Router /api/bridge/create [post]
 func (c *BridgeController) CreateBridge(ctx *gin.Context) {
 	var input CreateBridgeInput
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -92,11 +93,12 @@ func (c *BridgeController) CreateBridge(ctx *gin.Context) {
 // GetAllBridges godoc
 // @Summary 获取所有中转配置
 // @Description 获取所有消息中转配置的列表
-// @Tags Bridges
+// @Tags Bridge
 // @Produce json
+// @Param Authorization header string true "Authorization"
 // @Success 200 {array} models.Bridge
 // @Failure 500 {object} map[string]string "服务器内部错误"
-// @Router /bridges [get]
+// @Router /api/bridge/list [get]
 func (c *BridgeController) GetAllBridges(ctx *gin.Context) {
 	bridges, err := c.bridgeUsecase.GetAllBridges()
 	if err != nil {
@@ -109,13 +111,14 @@ func (c *BridgeController) GetAllBridges(ctx *gin.Context) {
 // GetBridgeByID godoc
 // @Summary 根据ID获取中转配置
 // @Description 根据提供的ID获取单个消息中转配置的详细信息
-// @Tags Bridges
+// @Tags Bridge
 // @Produce json
+// @Param Authorization header string true "Authorization"
 // @Param id path string true "Bridge ID (UUID)" format(uuid)
 // @Success 200 {object} models.Bridge
 // @Failure 404 {object} map[string]string "中转配置未找到"
 // @Failure 500 {object} map[string]string "服务器内部错误"
-// @Router /bridges/{id} [get]
+// @Router /api/bridge/get/{id} [get]
 func (c *BridgeController) GetBridgeByID(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	bridge, err := c.bridgeUsecase.GetBridgeByID(id)
@@ -140,16 +143,17 @@ func (c *BridgeController) GetBridgeByTicket(ctx *gin.Context) {
 // UpdateBridge godoc
 // @Summary 更新中转配置
 // @Description 根据提供的ID更新现有的消息中转配置。仅更新请求中提供的字段。
-// @Tags Bridges
+// @Tags Bridge
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Authorization"
 // @Param id path string true "Bridge ID (UUID)" format(uuid)
 // @Param bridge body UpdateBridgeInput true "Bridge Update Object"
 // @Success 200 {object} models.Bridge
 // @Failure 400 {object} map[string]string "无效的输入或验证错误"
 // @Failure 404 {object} map[string]string "中转配置未找到"
 // @Failure 500 {object} map[string]string "服务器内部错误"
-// @Router /bridges/{id} [put]
+// @Router /api/bridge/update/{id} [put]
 func (c *BridgeController) UpdateBridge(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	var input UpdateBridgeInput
@@ -211,13 +215,14 @@ func (c *BridgeController) UpdateBridge(ctx *gin.Context) {
 // DeleteBridge godoc
 // @Summary 删除中转配置
 // @Description 根据提供的ID删除消息中转配置
-// @Tags Bridges
+// @Tags Bridge
 // @Produce json
+// @Param Authorization header string true "Authorization"
 // @Param id path string true "Bridge ID (UUID)" format(uuid)
 // @Success 200 {object} map[string]string
 // @Failure 404 {object} map[string]string "中转配置未找到"
 // @Failure 500 {object} map[string]string "服务器内部错误"
-// @Router /bridges/{id} [delete]
+// @Router /api/bridge/delete/{id} [delete]
 func (c *BridgeController) DeleteBridge(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	if err := c.bridgeUsecase.DeleteBridge(id); err != nil {

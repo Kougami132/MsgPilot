@@ -52,7 +52,16 @@ func (c *AuthController) RegisterRoutes(router *gin.RouterGroup) {
 	}
 }
 
-// Login 登录
+// Login godoc
+// @Summary 登录
+// @Description 登录
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param username body string true "Username"
+// @Param password body string true "Password"
+// @Success 200 {object} object "ok"
+// @Router /api/auth/login [post]
 func (c *AuthController) Login(ctx *gin.Context) {
 	var req LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -69,7 +78,16 @@ func (c *AuthController) Login(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, tokenResponse)
 }
 
-// Register 注册
+// Register godoc
+// @Summary 注册
+// @Description 注册
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param username body string true "Username"
+// @Param password body string true "Password"
+// @Success 200 {object} object "ok"
+// @Router /api/auth/register [post]
 func (c *AuthController) Register(ctx *gin.Context) {
 	var req RegisterRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -86,7 +104,15 @@ func (c *AuthController) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, tokenResponse)
 }
 
-// RefreshToken 刷新令牌
+// RefreshToken godoc
+// @Summary 刷新令牌
+// @Description 刷新令牌
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param token body string true "Token"
+// @Success 200 {object} object "ok"
+// @Router /api/auth/refresh [post]
 func (c *AuthController) RefreshToken(ctx *gin.Context) {
 	type RefreshRequest struct {
 		Token string `json:"token" binding:"required"`
@@ -110,7 +136,17 @@ func (c *AuthController) RefreshToken(ctx *gin.Context) {
 	})
 }
 
-// ChangePassword 修改密码
+// ChangePassword godoc
+// @Summary 修改密码
+// @Description 修改密码
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param username body string true "Username"
+// @Param old_password body string true "Old Password"
+// @Param new_password body string true "New Password"
+// @Success 200 {object} object "ok"
+// @Router /api/auth/changePassword [post]
 func (c *AuthController) ChangePassword(ctx *gin.Context) {
 	var req ChangePasswordRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
