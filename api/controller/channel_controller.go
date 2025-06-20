@@ -5,15 +5,15 @@ import (
 	"strconv"
 	"github.com/gin-gonic/gin"
 	"github.com/kougami132/MsgPilot/models"
-	"github.com/kougami132/MsgPilot/usecase"
+	"github.com/kougami132/MsgPilot/internal/service"
 )
 
 type ChannelController struct {
-	channelUsecase usecase.ChannelUsecase
+	channelService service.ChannelService
 }
 
-func NewChannelController(channelUsecase usecase.ChannelUsecase) *ChannelController {
-	return &ChannelController{channelUsecase: channelUsecase}
+func NewChannelController(channelService service.ChannelService) *ChannelController {
+	return &ChannelController{channelService: channelService}
 }
 
 func (c *ChannelController) RegisterRoutes(router *gin.RouterGroup) {
@@ -37,8 +37,8 @@ func (c *ChannelController) RegisterRoutes(router *gin.RouterGroup) {
 // @Param Authorization header string true "Authorization"
 // @Param channel body models.Channel true "Channel"
 // @Success 201 {object} models.Channel
-// @Failure 400 {object} map[string]string "无效的输入或验证错误"
-// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Failure 400 {object} object "无效的输入或验证错误"
+// @Failure 500 {object} object "服务器内部错误"
 // @Router /api/channel/create [post]
 func (c *ChannelController) CreateChannel(ctx *gin.Context) {
 	var channel models.Channel
@@ -46,7 +46,7 @@ func (c *ChannelController) CreateChannel(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := c.channelUsecase.CreateChannel(&channel); err != nil {
+	if err := c.channelService.CreateChannel(&channel); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -60,10 +60,10 @@ func (c *ChannelController) CreateChannel(ctx *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Authorization"
 // @Success 200 {array} models.Channel
-// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Failure 500 {object} object "服务器内部错误"
 // @Router /api/channel/list [get]
 func (c *ChannelController) GetAllChannels(ctx *gin.Context) {
-	channels, err := c.channelUsecase.GetAllChannels()
+	channels, err := c.channelService.GetAllChannels()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -79,14 +79,13 @@ func (c *ChannelController) GetAllChannels(ctx *gin.Context) {
 // @Param Authorization header string true "Authorization"
 // @Param id path string true "Channel ID"
 // @Success 200 {object} models.Channel
-// @Failure 404 {object} map[string]string "渠道未找到"
-// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Failure 404 {object} object "渠道未找到"
 // @Router /api/channel/get/{id} [get]
 func (c *ChannelController) GetChannelByID(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-	channel, err := c.channelUsecase.GetChannelByID(id)
+	channel, err := c.channelService.GetChannelByID(id)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Channel not found"})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "渠道未找到"})
 		return
 	}
 	ctx.JSON(http.StatusOK, channel)
@@ -102,8 +101,8 @@ func (c *ChannelController) GetChannelByID(ctx *gin.Context) {
 // @Param id path string true "Channel ID"
 // @Param channel body models.Channel true "Channel"
 // @Success 200 {object} models.Channel
-// @Failure 400 {object} map[string]string "无效的输入或验证错误"
-// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Failure 400 {object} object "无效的输入或验证错误"
+// @Failure 500 {object} object "服务器内部错误"
 // @Router /api/channel/update/{id} [put]
 func (c *ChannelController) UpdateChannel(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
@@ -113,7 +112,7 @@ func (c *ChannelController) UpdateChannel(ctx *gin.Context) {
 		return
 	}
 	channel.ID = id
-	if err := c.channelUsecase.UpdateChannel(&channel); err != nil {
+	if err := c.channelService.UpdateChannel(&channel); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -127,17 +126,16 @@ func (c *ChannelController) UpdateChannel(ctx *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Authorization"
 // @Param id path string true "Channel ID"
-// @Success 200 {object} map[string]string
-// @Failure 404 {object} map[string]string "渠道未找到"
-// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Success 200 {object} object
+// @Failure 500 {object} object "服务器内部错误"
 // @Router /api/channel/delete/{id} [delete]
 func (c *ChannelController) DeleteChannel(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-	if err := c.channelUsecase.DeleteChannel(id); err != nil {
+	if err := c.channelService.DeleteChannel(id); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Channel deleted successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "渠道删除成功"})
 }
 
 // TestPush godoc
@@ -147,9 +145,9 @@ func (c *ChannelController) DeleteChannel(ctx *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Authorization"
 // @Param channel body models.Channel true "Channel"
-// @Success 200 {object} map[string]string
-// @Failure 400 {object} map[string]string "无效的输入或验证错误"
-// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Success 200 {object} object
+// @Failure 400 {object} object "无效的输入或验证错误"
+// @Failure 500 {object} object "服务器内部错误"
 // @Router /api/channel/test [post]
 func (c *ChannelController) TestPush(ctx *gin.Context) {
 	var channel models.Channel
@@ -157,7 +155,7 @@ func (c *ChannelController) TestPush(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := c.channelUsecase.TestPush(channel)
+	err := c.channelService.TestPush(channel)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

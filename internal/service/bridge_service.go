@@ -1,14 +1,15 @@
-package usecase
+package service
 
 import (
 	"errors"
 	"strconv"
+
+	"github.com/kougami132/MsgPilot/internal/repository"
 	"github.com/kougami132/MsgPilot/models"
-	"github.com/kougami132/MsgPilot/repository"
 )
 
-// BridgeUsecase 定义了中转配置用例的接口
-type BridgeUsecase interface {
+// BridgeService 定义了中转配置用例的接口
+type BridgeService interface {
 	CreateBridge(bridge *models.Bridge) error
 	GetAllBridges() ([]models.Bridge, error)
 	GetBridgeByID(id int) (*models.Bridge, error)
@@ -18,21 +19,21 @@ type BridgeUsecase interface {
 	// TODO: 考虑添加ToggleActive(id string) (bool, error) 方法
 }
 
-type bridgeUsecase struct {
+type bridgeService struct {
 	bridgeRepo  repository.BridgeRepository
 	channelRepo repository.ChannelRepository // 用于验证 ChannelID 是否存在
 }
 
-// NewBridgeUsecase 创建一个新的中转配置用例实例
-func NewBridgeUsecase(bridgeRepo repository.BridgeRepository, channelRepo repository.ChannelRepository) BridgeUsecase {
-	return &bridgeUsecase{
+// NewBridgeService 创建一个新的中转配置用例实例
+func NewBridgeService(bridgeRepo repository.BridgeRepository, channelRepo repository.ChannelRepository) BridgeService {
+	return &bridgeService{
 		bridgeRepo:  bridgeRepo,
 		channelRepo: channelRepo,
 	}
 }
 
 // validateChannelExists 验证Channel是否存在
-func (u *bridgeUsecase) validateChannelExists(channelID int) error {
+func (u *bridgeService) validateChannelExists(channelID int) error {
 	if channelID == 0 {
 		return errors.New("渠道ID不能为空")
 	}
@@ -44,7 +45,7 @@ func (u *bridgeUsecase) validateChannelExists(channelID int) error {
 }
 
 // CreateBridge 创建一个新的中转配置
-func (u *bridgeUsecase) CreateBridge(bridge *models.Bridge) error {
+func (u *bridgeService) CreateBridge(bridge *models.Bridge) error {
 	if err := u.validateChannelExists(bridge.TargetChannelID); err != nil {
 		return errors.New("目标渠道验证失败: " + err.Error())
 	}
@@ -52,22 +53,22 @@ func (u *bridgeUsecase) CreateBridge(bridge *models.Bridge) error {
 }
 
 // GetAllBridges 获取所有中转配置
-func (u *bridgeUsecase) GetAllBridges() ([]models.Bridge, error) {
+func (u *bridgeService) GetAllBridges() ([]models.Bridge, error) {
 	return u.bridgeRepo.GetAll()
 }
 
 // GetBridgeByID 根据ID获取一个中转配置
-func (u *bridgeUsecase) GetBridgeByID(id int) (*models.Bridge, error) {
+func (u *bridgeService) GetBridgeByID(id int) (*models.Bridge, error) {
 	return u.bridgeRepo.GetByID(id)
 }
 
 // GetBridgeByTicket 根据Ticket获取一个中转配置
-func (u *bridgeUsecase) GetBridgeByTicket(ticket string) (*models.Bridge, error) {
+func (u *bridgeService) GetBridgeByTicket(ticket string) (*models.Bridge, error) {
 	return u.bridgeRepo.GetByTicket(ticket)
 }
 
 // UpdateBridge 更新一个中转配置
-func (u *bridgeUsecase) UpdateBridge(id int, bridgeUpdates *models.Bridge) (*models.Bridge, error) {
+func (u *bridgeService) UpdateBridge(id int, bridgeUpdates *models.Bridge) (*models.Bridge, error) {
 	existingBridge, err := u.bridgeRepo.GetByID(id)
 	if err != nil {
 		return nil, errors.New("中转配置未找到")
@@ -91,7 +92,7 @@ func (u *bridgeUsecase) UpdateBridge(id int, bridgeUpdates *models.Bridge) (*mod
 }
 
 // DeleteBridge 根据ID删除一个中转配置
-func (u *bridgeUsecase) DeleteBridge(id int) error {
+func (u *bridgeService) DeleteBridge(id int) error {
 	// 可以在删除前添加检查逻辑，例如检查中转配置是否仍在使用等
 	_, err := u.bridgeRepo.GetByID(id) // 确认存在
 	if err != nil {

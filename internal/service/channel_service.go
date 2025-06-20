@@ -1,12 +1,12 @@
-package usecase
+package service
 
 import (
-	"github.com/kougami132/MsgPilot/channels"
+	"github.com/kougami132/MsgPilot/internal/repository"
+	"github.com/kougami132/MsgPilot/internal/channels"
 	"github.com/kougami132/MsgPilot/models"
-	"github.com/kougami132/MsgPilot/repository"
 )
 
-type ChannelUsecase interface {
+type ChannelService interface {
 	CreateChannel(channel *models.Channel) error
 	GetAllChannels() ([]models.Channel, error)
 	GetChannelByID(id int) (*models.Channel, error)
@@ -15,36 +15,36 @@ type ChannelUsecase interface {
 	TestPush(channel models.Channel) error
 }
 
-type channelUsecase struct {
+type channelService struct {
 	channelRepo repository.ChannelRepository
 }
 
-func NewChannelUsecase(channelRepo repository.ChannelRepository) ChannelUsecase {
-	return &channelUsecase{channelRepo: channelRepo}
+func NewChannelService(channelRepo repository.ChannelRepository) ChannelService {
+	return &channelService{channelRepo: channelRepo}
 }
 
-func (u *channelUsecase) CreateChannel(channel *models.Channel) error {
+func (u *channelService) CreateChannel(channel *models.Channel) error {
 	return u.channelRepo.Create(channel)
 }
 
-func (u *channelUsecase) GetAllChannels() ([]models.Channel, error) {
+func (u *channelService) GetAllChannels() ([]models.Channel, error) {
 	return u.channelRepo.GetAll()
 }
 
-func (u *channelUsecase) GetChannelByID(id int) (*models.Channel, error) {
+func (u *channelService) GetChannelByID(id int) (*models.Channel, error) {
 	return u.channelRepo.GetByID(id)
 }
 
-func (u *channelUsecase) UpdateChannel(channel *models.Channel) error {
+func (u *channelService) UpdateChannel(channel *models.Channel) error {
 	return u.channelRepo.Update(channel)
 }
 
-func (u *channelUsecase) DeleteChannel(id int) error {
+func (u *channelService) DeleteChannel(id int) error {
 	return u.channelRepo.Delete(id)
 }
 
 
-func (u *channelUsecase) TestPush(channel models.Channel) error {
+func (u *channelService) TestPush(channel models.Channel) error {
 	testMessage := &models.Message{
 		Title:    "MsgPilot消息推送",
 		Content:  "测试消息",

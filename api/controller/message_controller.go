@@ -6,15 +6,15 @@ import (
 	
 	"github.com/gin-gonic/gin"
 	"github.com/kougami132/MsgPilot/models"
-	"github.com/kougami132/MsgPilot/usecase"
+	"github.com/kougami132/MsgPilot/internal/service"
 )
 
 type MessageController struct {
-	messageUsecase usecase.MessageUsecase
+	messageService service.MessageService
 }
 
-func NewMessageController(messageUsecase usecase.MessageUsecase) *MessageController {
-	return &MessageController{messageUsecase: messageUsecase}
+func NewMessageController(messageService service.MessageService) *MessageController {
+	return &MessageController{messageService: messageService}
 }
 
 func (c *MessageController) RegisterRoutes(router *gin.RouterGroup) {
@@ -37,8 +37,8 @@ func (c *MessageController) RegisterRoutes(router *gin.RouterGroup) {
 // @Param Authorization header string true "Authorization"
 // @Param message body models.Message true "Message"
 // @Success 201 {object} models.Message
-// @Failure 400 {object} map[string]string "无效的输入或验证错误"
-// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Failure 400 {object} object "无效的输入或验证错误"
+// @Failure 500 {object} object "服务器内部错误"
 // @Router /api/message/create [post]
 func (c *MessageController) CreateMessage(ctx *gin.Context) {
 	var message models.Message
@@ -46,7 +46,7 @@ func (c *MessageController) CreateMessage(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := c.messageUsecase.CreateMessage(&message); err != nil {
+	if err := c.messageService.CreateMessage(&message); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -60,10 +60,10 @@ func (c *MessageController) CreateMessage(ctx *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Authorization"
 // @Success 200 {array} models.Message
-// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Failure 500 {object} object "服务器内部错误"
 // @Router /api/message/list [get]
 func (c *MessageController) GetAllMessages(ctx *gin.Context) {
-	messages, err := c.messageUsecase.GetAllMessages()
+	messages, err := c.messageService.GetAllMessages()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -79,14 +79,13 @@ func (c *MessageController) GetAllMessages(ctx *gin.Context) {
 // @Param Authorization header string true "Authorization"
 // @Param id path string true "Message ID"
 // @Success 200 {object} models.Message
-// @Failure 404 {object} map[string]string "消息未找到"
-// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Failure 404 {object} object "消息未找到"
 // @Router /api/message/get/{id} [get]
 func (c *MessageController) GetMessageByID(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-	message, err := c.messageUsecase.GetMessageByID(id)
+	message, err := c.messageService.GetMessageByID(id)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Message not found"})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "消息未找到"})
 		return
 	}
 	ctx.JSON(http.StatusOK, message)
@@ -102,8 +101,8 @@ func (c *MessageController) GetMessageByID(ctx *gin.Context) {
 // @Param id path string true "Message ID"
 // @Param message body models.Message true "Message"
 // @Success 200 {object} models.Message
-// @Failure 400 {object} map[string]string "无效的输入或验证错误"
-// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Failure 400 {object} object "无效的输入或验证错误"
+// @Failure 500 {object} object "服务器内部错误"
 // @Router /api/message/update/{id} [put]
 func (c *MessageController) UpdateMessage(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
@@ -113,7 +112,7 @@ func (c *MessageController) UpdateMessage(ctx *gin.Context) {
 		return
 	}
 	message.ID = id
-	if err := c.messageUsecase.UpdateMessage(&message); err != nil {
+	if err := c.messageService.UpdateMessage(&message); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -127,15 +126,15 @@ func (c *MessageController) UpdateMessage(ctx *gin.Context) {
 // @Produce json
 // @Param Authorization header string true "Authorization"
 // @Param id path string true "Message ID"
-// @Success 200 {object} map[string]string
-// @Failure 404 {object} map[string]string "消息未找到"
-// @Failure 500 {object} map[string]string "服务器内部错误"
+// @Success 200 {object} object
+// @Failure 404 {object} object "消息未找到"
+// @Failure 500 {object} object "服务器内部错误"
 // @Router /api/message/delete/{id} [delete]
 func (c *MessageController) DeleteMessage(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-	if err := c.messageUsecase.DeleteMessage(id); err != nil {
+	if err := c.messageService.DeleteMessage(id); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Message deleted successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "消息删除成功"})
 }

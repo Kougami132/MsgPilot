@@ -5,16 +5,16 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kougami132/MsgPilot/usecase"
-	"github.com/kougami132/MsgPilot/channels"
+	"github.com/kougami132/MsgPilot/internal/service"
+	"github.com/kougami132/MsgPilot/internal/channels"
 )
 
 type AdapterController struct {
-	handlerUsecase usecase.HandlerUsecase
+	handlerService service.HandlerService
 }
 
-func NewAdapterController(handlerUsecase usecase.HandlerUsecase) *AdapterController {
-	return &AdapterController{handlerUsecase: handlerUsecase}
+func NewAdapterController(handlerService service.HandlerService) *AdapterController {
+	return &AdapterController{handlerService: handlerService}
 }
 
 func (c *AdapterController) RegisterRoutes(router *gin.RouterGroup) {
@@ -105,8 +105,8 @@ func (c *AdapterController) OneBotSendMsg(ctx *gin.Context) {
 		}
 	}
 
-	// 调用usecase处理消息
-	message, err := c.handlerUsecase.OneBotPush(ticket, msg)
+	// 调用service处理消息
+	message, err := c.handlerService.OneBotPush(ticket, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -189,7 +189,7 @@ func (c *AdapterController) BarkSendMsg(ctx *gin.Context) {
 		title = title + " - " + subtitle
 	}
 
-	message, err := c.handlerUsecase.CommonPush(ticket, title, body)
+	message, err := c.handlerService.CommonPush(ticket, title, body)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -214,7 +214,7 @@ func (c *AdapterController) GotifySendMsg(ctx *gin.Context) {
 	title := ctx.PostForm("title")
 	msg := ctx.PostForm("message")
 
-	message, err := c.handlerUsecase.CommonPush(ticket, title, msg)
+	message, err := c.handlerService.CommonPush(ticket, title, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -238,7 +238,7 @@ func (c *AdapterController) PushDeerSendMsg(ctx *gin.Context) {
 	title := ctx.PostForm("text")
 	msg := ctx.PostForm("desp")
 
-	message, err := c.handlerUsecase.CommonPush(ticket, title, msg)
+	message, err := c.handlerService.CommonPush(ticket, title, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -278,7 +278,7 @@ func (c *AdapterController) NtfySendMsg(ctx *gin.Context) {
 		}
 	}
 
-	message, err := c.handlerUsecase.CommonPush(ticket, title, msg)
+	message, err := c.handlerService.CommonPush(ticket, title, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -308,7 +308,7 @@ func (c *AdapterController) WebhookSendMsg(ctx *gin.Context) {
 		msg = ctx.PostForm("message")
 	}
 
-	message, err := c.handlerUsecase.CommonPush(ticket, title, msg)
+	message, err := c.handlerService.CommonPush(ticket, title, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

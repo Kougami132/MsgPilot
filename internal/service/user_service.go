@@ -1,12 +1,12 @@
-package usecase
+package service
 
 import (
+	"github.com/kougami132/MsgPilot/internal/repository"
 	"github.com/kougami132/MsgPilot/models"
-	"github.com/kougami132/MsgPilot/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserUsecase interface {
+type UserService interface {
 	CreateUser(user *models.User) error
 	GetAllUsers() ([]models.User, error)
 	GetUserByID(id int) (*models.User, error)
@@ -16,15 +16,15 @@ type UserUsecase interface {
 	CheckPassword(username, password string) (*models.User, error)
 }
 
-type userUsecase struct {
+type userService struct {
 	userRepo repository.UserRepository
 }
 
-func NewUserUsecase(userRepo repository.UserRepository) UserUsecase {
-	return &userUsecase{userRepo: userRepo}
+func NewUserService(userRepo repository.UserRepository) UserService {
+	return &userService{userRepo: userRepo}
 }
 
-func (u *userUsecase) CreateUser(user *models.User) error {
+func (u *userService) CreateUser(user *models.User) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -33,19 +33,19 @@ func (u *userUsecase) CreateUser(user *models.User) error {
 	return u.userRepo.Create(user)
 }
 
-func (u *userUsecase) GetAllUsers() ([]models.User, error) {
+func (u *userService) GetAllUsers() ([]models.User, error) {
 	return u.userRepo.GetAll()
 }
 
-func (u *userUsecase) GetUserByID(id int) (*models.User, error) {
+func (u *userService) GetUserByID(id int) (*models.User, error) {
 	return u.userRepo.GetByID(id)
 }
 
-func (u *userUsecase) GetUserByUsername(username string) (*models.User, error) {
+func (u *userService) GetUserByUsername(username string) (*models.User, error) {
 	return u.userRepo.GetByUsername(username)
 }
 
-func (u *userUsecase) UpdateUser(user *models.User) error {
+func (u *userService) UpdateUser(user *models.User) error {
 	// 如果密码字段不为空，则哈希密码
 	if user.Password != "" {
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -57,11 +57,11 @@ func (u *userUsecase) UpdateUser(user *models.User) error {
 	return u.userRepo.Update(user)
 }
 
-func (u *userUsecase) DeleteUser(id int) error {
+func (u *userService) DeleteUser(id int) error {
 	return u.userRepo.Delete(id)
 }
 
-func (u *userUsecase) CheckPassword(username, password string) (*models.User, error) {
+func (u *userService) CheckPassword(username, password string) (*models.User, error) {
 	user, err := u.userRepo.GetByUsername(username)
 	if err != nil {
 		return nil, err

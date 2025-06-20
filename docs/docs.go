@@ -86,6 +86,12 @@ const docTemplate = `{
                         "schema": {
                             "type": "object"
                         }
+                    },
+                    "400": {
+                        "description": "无效的输入或验证错误",
+                        "schema": {
+                            "type": "object"
+                        }
                     }
                 }
             }
@@ -129,6 +135,18 @@ const docTemplate = `{
                         "schema": {
                             "type": "object"
                         }
+                    },
+                    "400": {
+                        "description": "无效的输入或验证错误",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "type": "object"
+                        }
                     }
                 }
             }
@@ -160,6 +178,18 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "ok",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的输入或验证错误",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
                         "schema": {
                             "type": "object"
                         }
@@ -203,6 +233,12 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "ok",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "无效的输入或验证错误",
                         "schema": {
                             "type": "object"
                         }
@@ -301,19 +337,13 @@ const docTemplate = `{
                     "400": {
                         "description": "无效的输入或验证错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -350,28 +380,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "中转配置未找到",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -414,19 +429,7 @@ const docTemplate = `{
                     "404": {
                         "description": "中转配置未找到",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -464,10 +467,7 @@ const docTemplate = `{
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -522,28 +522,13 @@ const docTemplate = `{
                     "400": {
                         "description": "无效的输入或验证错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "中转配置未找到",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -590,19 +575,13 @@ const docTemplate = `{
                     "400": {
                         "description": "无效的输入或验证错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -638,28 +617,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "渠道未找到",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -701,19 +665,7 @@ const docTemplate = `{
                     "404": {
                         "description": "渠道未找到",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -751,10 +703,7 @@ const docTemplate = `{
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -792,28 +741,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "400": {
                         "description": "无效的输入或验证错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -867,19 +807,13 @@ const docTemplate = `{
                     "400": {
                         "description": "无效的输入或验证错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -970,19 +904,13 @@ const docTemplate = `{
                     "400": {
                         "description": "无效的输入或验证错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -1018,28 +946,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "404": {
                         "description": "消息未找到",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -1081,19 +1000,7 @@ const docTemplate = `{
                     "404": {
                         "description": "消息未找到",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -1131,10 +1038,7 @@ const docTemplate = `{
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }
@@ -1188,19 +1092,13 @@ const docTemplate = `{
                     "400": {
                         "description": "无效的输入或验证错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "object"
                         }
                     }
                 }

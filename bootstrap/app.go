@@ -5,13 +5,13 @@ import (
 	"path/filepath"
 
 	"github.com/kougami132/MsgPilot/config"
+	"github.com/kougami132/MsgPilot/internal/repository/storage"
 	"github.com/kougami132/MsgPilot/models"
-	"github.com/kougami132/MsgPilot/sqlite"
 )
 
 type Application struct {
 	Env    *config.Env
-	SQLite *sqlite.SQLiteDB
+	SQLite *storage.SQLiteDB
 }
 
 func App() Application {
@@ -20,7 +20,7 @@ func App() Application {
 
 	// 初始化SQLite数据库
 	dbPath := filepath.Join("data", "msgpilot.db")
-	sqliteDB, err := sqlite.NewSQLiteDB(dbPath)
+	sqliteDB, err := storage.NewSQLiteDB(dbPath)
 	if err != nil {
 		log.Fatalf("SQLite初始化失败: %v", err)
 	}

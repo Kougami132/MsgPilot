@@ -2,8 +2,8 @@ package bootstrap
 
 import (
 	"github.com/kougami132/MsgPilot/api/controller"
-	"github.com/kougami132/MsgPilot/repository"
-	"github.com/kougami132/MsgPilot/usecase"
+	"github.com/kougami132/MsgPilot/internal/repository"
+	"github.com/kougami132/MsgPilot/internal/service"
 )
 
 // AppDependencies 包含应用的所有依赖项
@@ -24,18 +24,18 @@ func NewAppDependencies(app Application) *AppDependencies {
 	bridgeRepo := repository.NewBridgeRepository(app.SQLite.DB)
 
 	// 初始化用例
-	authUseCase := usecase.NewAuthUseCase(userRepo, app.Env)
-	channelUseCase := usecase.NewChannelUsecase(channelRepo)
-	messageUseCase := usecase.NewMessageUsecase(messageRepo)
-	bridgeUsecase := usecase.NewBridgeUsecase(bridgeRepo, channelRepo)
-	handlerUsecase := usecase.NewHandlerUsecase(bridgeUsecase, messageUseCase)
+	authService := service.NewAuthService(userRepo, app.Env)
+	channelService := service.NewChannelService(channelRepo)
+	messageService := service.NewMessageService(messageRepo)
+	bridgeService := service.NewBridgeService(bridgeRepo, channelRepo)
+	handlerService := service.NewHandlerService(bridgeService, messageService)
 
 	// 初始化控制器
-	authController := controller.NewAuthController(authUseCase, app.Env)
-	channelController := controller.NewChannelController(channelUseCase)
-	messageController := controller.NewMessageController(messageUseCase)
-	bridgeController := controller.NewBridgeController(bridgeUsecase)
-	adapterController := controller.NewAdapterController(handlerUsecase)
+	authController := controller.NewAuthController(authService, app.Env)
+	channelController := controller.NewChannelController(channelService)
+	messageController := controller.NewMessageController(messageService)
+	bridgeController := controller.NewBridgeController(bridgeService)
+	adapterController := controller.NewAdapterController(handlerService)
 
 	return &AppDependencies{
 		AuthController:    authController,

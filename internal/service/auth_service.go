@@ -1,13 +1,13 @@
-package usecase
+package service
 
 import (
 	"errors"
 	"time"
 
 	"github.com/kougami132/MsgPilot/config"
+	"github.com/kougami132/MsgPilot/internal/repository"
 	"github.com/kougami132/MsgPilot/internal/utils"
 	"github.com/kougami132/MsgPilot/models"
-	"github.com/kougami132/MsgPilot/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,30 +17,30 @@ type TokenResponse struct {
 	Expiry       int64  `json:"expiry"`
 }
 
-// AuthUseCase 认证用例接口
-type AuthUseCase interface {
+// AuthService 认证用例接口
+type AuthService interface {
 	Login(username, password string) (*TokenResponse, error)
 	Register(username, password string) (*TokenResponse, error)
 	RefreshToken(token string) (string, int64, error)
 	ChangePassword(username, oldPassword, newPassword string) error
 }
 
-// AuthUseCaseImpl 认证用例实现
-type AuthUseCaseImpl struct {
+// AuthServiceImpl 认证用例实现
+type AuthServiceImpl struct {
 	userRepo repository.UserRepository
 	env      *config.Env
 }
 
-// NewAuthUseCase 创建认证用例
-func NewAuthUseCase(userRepo repository.UserRepository, env *config.Env) AuthUseCase {
-	return &AuthUseCaseImpl{
+// NewAuthService 创建认证用例
+func NewAuthService(userRepo repository.UserRepository, env *config.Env) AuthService {
+	return &AuthServiceImpl{
 		userRepo: userRepo,
 		env:      env,
 	}
 }
 
 // Login 登录
-func (u *AuthUseCaseImpl) Login(username, password string) (*TokenResponse, error) {
+func (u *AuthServiceImpl) Login(username, password string) (*TokenResponse, error) {
 	// 查找用户
 	user, err := u.userRepo.GetByUsername(username)
 	if err != nil {
@@ -67,7 +67,7 @@ func (u *AuthUseCaseImpl) Login(username, password string) (*TokenResponse, erro
 }
 
 // Register 注册
-func (u *AuthUseCaseImpl) Register(username, password string) (*TokenResponse, error) {
+func (u *AuthServiceImpl) Register(username, password string) (*TokenResponse, error) {
 	// 检查用户名是否已存在
 	_, err := u.userRepo.GetByUsername(username)
 	if err == nil {
@@ -105,7 +105,7 @@ func (u *AuthUseCaseImpl) Register(username, password string) (*TokenResponse, e
 }
 
 // RefreshToken 刷新令牌
-func (u *AuthUseCaseImpl) RefreshToken(token string) (string, int64, error) {
+func (u *AuthServiceImpl) RefreshToken(token string) (string, int64, error) {
 	// 验证刷新令牌
 	claims, err := utils.ValidateToken(token, u.env.AccessTokenSecret)
 	if err != nil {
@@ -123,7 +123,7 @@ func (u *AuthUseCaseImpl) RefreshToken(token string) (string, int64, error) {
 }
 
 // ChangePassword 修改密码
-func (u *AuthUseCaseImpl) ChangePassword(username, oldPassword, newPassword string) error {
+func (u *AuthServiceImpl) ChangePassword(username, oldPassword, newPassword string) error {
 	// 查找用户
 	user, err := u.userRepo.GetByUsername(username)
 	if err != nil {

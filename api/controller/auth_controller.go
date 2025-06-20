@@ -5,12 +5,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kougami132/MsgPilot/config"
-	"github.com/kougami132/MsgPilot/usecase"
+	"github.com/kougami132/MsgPilot/internal/service"
 )
 
 // AuthController 认证控制器
 type AuthController struct {
-	authUseCase usecase.AuthUseCase
+	authService service.AuthService
 	env         *config.Env
 }
 
@@ -34,9 +34,9 @@ type ChangePasswordRequest struct {
 }
 
 // NewAuthController 创建认证控制器
-func NewAuthController(authUseCase usecase.AuthUseCase, env *config.Env) *AuthController {
+func NewAuthController(authService service.AuthService, env *config.Env) *AuthController {
 	return &AuthController{
-		authUseCase: authUseCase,
+		authService: authService,
 		env:         env,
 	}
 }
@@ -61,6 +61,8 @@ func (c *AuthController) RegisterRoutes(router *gin.RouterGroup) {
 // @Param username body string true "Username"
 // @Param password body string true "Password"
 // @Success 200 {object} object "ok"
+// @Failure 400 {object} object "无效的输入或验证错误"
+// @Failure 401 {object} object "未授权"
 // @Router /api/auth/login [post]
 func (c *AuthController) Login(ctx *gin.Context) {
 	var req LoginRequest
@@ -69,7 +71,7 @@ func (c *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	tokenResponse, err := c.authUseCase.Login(req.Username, req.Password)
+	tokenResponse, err := c.authService.Login(req.Username, req.Password)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -87,6 +89,7 @@ func (c *AuthController) Login(ctx *gin.Context) {
 // @Param username body string true "Username"
 // @Param password body string true "Password"
 // @Success 200 {object} object "ok"
+// @Failure 400 {object} object "无效的输入或验证错误"
 // @Router /api/auth/register [post]
 func (c *AuthController) Register(ctx *gin.Context) {
 	var req RegisterRequest
@@ -95,7 +98,7 @@ func (c *AuthController) Register(ctx *gin.Context) {
 		return
 	}
 
-	tokenResponse, err := c.authUseCase.Register(req.Username, req.Password)
+	tokenResponse, err := c.authService.Register(req.Username, req.Password)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -112,6 +115,8 @@ func (c *AuthController) Register(ctx *gin.Context) {
 // @Produce json
 // @Param token body string true "Token"
 // @Success 200 {object} object "ok"
+// @Failure 400 {object} object "无效的输入或验证错误"
+// @Failure 401 {object} object "未授权"
 // @Router /api/auth/refresh [post]
 func (c *AuthController) RefreshToken(ctx *gin.Context) {
 	type RefreshRequest struct {
@@ -124,7 +129,7 @@ func (c *AuthController) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, expiry, err := c.authUseCase.RefreshToken(req.Token)
+	accessToken, expiry, err := c.authService.RefreshToken(req.Token)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -146,6 +151,7 @@ func (c *AuthController) RefreshToken(ctx *gin.Context) {
 // @Param old_password body string true "Old Password"
 // @Param new_password body string true "New Password"
 // @Success 200 {object} object "ok"
+// @Failure 400 {object} object "无效的输入或验证错误"
 // @Router /api/auth/changePassword [post]
 func (c *AuthController) ChangePassword(ctx *gin.Context) {
 	var req ChangePasswordRequest
@@ -154,7 +160,7 @@ func (c *AuthController) ChangePassword(ctx *gin.Context) {
 		return
 	}
 
-	err := c.authUseCase.ChangePassword(req.Username, req.OldPassword, req.NewPassword)
+	err := c.authService.ChangePassword(req.Username, req.OldPassword, req.NewPassword)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
