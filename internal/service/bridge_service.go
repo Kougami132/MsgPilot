@@ -78,6 +78,17 @@ func (u *bridgeService) UpdateBridge(id int, bridgeUpdates *models.Bridge) (*mod
 	if bridgeUpdates.Name != "" {
 		existingBridge.Name = bridgeUpdates.Name
 	}
+	if bridgeUpdates.Ticket != "" {
+		// 存在ticket相同的其他项
+		if b, err := u.bridgeRepo.GetByTicket(bridgeUpdates.Ticket); err == nil && b.ID != existingBridge.ID {
+			return nil, errors.New("ticket已存在")
+		}
+		existingBridge.Ticket = bridgeUpdates.Ticket
+	}
+	if bridgeUpdates.SourceChannelType != "" {
+		existingBridge.SourceChannelType = bridgeUpdates.SourceChannelType
+	}
+	existingBridge.TargetChannelID = bridgeUpdates.TargetChannelID
 
 	if err := u.validateChannelExists(bridgeUpdates.TargetChannelID); err != nil {
 		return nil, errors.New("新的目标渠道验证失败: " + err.Error())
