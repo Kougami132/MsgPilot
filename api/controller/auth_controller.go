@@ -49,6 +49,7 @@ func (c *AuthController) RegisterRoutes(router *gin.RouterGroup) {
 		auth.POST("/register", c.Register)
 		auth.POST("/refresh", c.RefreshToken)
 		auth.POST("/changePassword", c.ChangePassword)
+		auth.GET("/me", c.Me)
 	}
 }
 
@@ -167,4 +168,39 @@ func (c *AuthController) ChangePassword(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "密码修改成功"})
+}
+
+// Me godoc
+// @Summary 获取当前用户信息
+// @Description 获取当前用户信息
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} object "ok"
+// @Router /api/auth/me [get]
+func (c *AuthController) Me(ctx *gin.Context) {
+	// 从Authorization header获取token
+	authHeader := ctx.GetHeader("Authorization")
+	if authHeader == "" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		return
+	}
+
+	// 移除"Bearer "前缀
+	token := authHeader
+	if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+		token = authHeader[7:]
+	}
+
+	user, err := c.authService.GetCurrentUser(token)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"id":         user.ID,
+		"username":   user.Username,
+		"created_at": user.CreatedAt,
+	})
 }

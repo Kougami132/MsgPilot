@@ -167,8 +167,11 @@ const loadStats = async () => {
       totalAdapters: adapters.adapters.length + adapters.handlers.length
     }
     
-    // 获取最近的5条消息
-    recentMessages.value = messages.slice(0, 5)
+    // 获取最近的5条消息，按创建时间降序排列（最新的在前面）
+    const sortedMessages = messages.sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+    recentMessages.value = sortedMessages.slice(0, 5)
   } catch (error) {
     console.error('加载统计数据失败:', error)
   }

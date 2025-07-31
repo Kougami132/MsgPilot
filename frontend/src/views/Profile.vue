@@ -19,14 +19,14 @@
           </div>
           <div class="info-section">
             <el-descriptions :column="1" border>
+              <el-descriptions-item label="用户ID">
+                {{ authStore.user?.id || '-' }}
+              </el-descriptions-item>
               <el-descriptions-item label="用户名">
                 {{ authStore.user?.username || 'admin' }}
               </el-descriptions-item>
-              <el-descriptions-item label="注册时间">
+              <el-descriptions-item label="创建时间">
                 {{ formatDate(authStore.user?.created_at || new Date().toISOString()) }}
-              </el-descriptions-item>
-              <el-descriptions-item label="最后更新">
-                {{ formatDate(authStore.user?.updated_at || new Date().toISOString()) }}
               </el-descriptions-item>
             </el-descriptions>
           </div>
@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, type FormInstance, type FormRules } from 'vue'
+import { reactive, ref, onMounted, type FormInstance, type FormRules } from 'vue'
 import { ElMessage } from 'element-plus'
 import { User } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
@@ -133,6 +133,15 @@ const passwordRules: FormRules = {
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleString('zh-CN')
 }
+
+// 页面加载时获取用户信息
+onMounted(async () => {
+  try {
+    await authStore.fetchUserInfo()
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
+})
 
 // 修改密码
 const handleChangePassword = async () => {

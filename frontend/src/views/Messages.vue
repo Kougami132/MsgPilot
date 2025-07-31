@@ -218,6 +218,11 @@ const filteredMessages = computed(() => {
     result = result.filter(message => message.status === searchForm.status)
   }
 
+  // 按创建时间降序排列（最新的在前面）
+  result = result.sort((a, b) =>
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  )
+
   return result
 })
 

@@ -23,6 +23,7 @@ type AuthService interface {
 	Register(username, password string) (*TokenResponse, error)
 	RefreshToken(token string) (string, int64, error)
 	ChangePassword(username, oldPassword, newPassword string) error
+	GetCurrentUser(token string) (*models.User, error)
 }
 
 // AuthServiceImpl 认证用例实现
@@ -154,4 +155,21 @@ func (u *AuthServiceImpl) ChangePassword(username, oldPassword, newPassword stri
 	}
 
 	return nil
+}
+
+// GetCurrentUser 获取当前用户信息
+func (u *AuthServiceImpl) GetCurrentUser(token string) (*models.User, error) {
+	// 验证令牌
+	claims, err := utils.ValidateToken(token, u.env.AccessTokenSecret)
+	if err != nil {
+		return nil, errors.New("无效的令牌")
+	}
+
+	// 获取用户信息
+	user, err := u.userRepo.GetByUsername(claims.Username)
+	if err != nil {
+		return nil, errors.New("获取用户信息失败")
+	}
+
+	return user, nil
 }

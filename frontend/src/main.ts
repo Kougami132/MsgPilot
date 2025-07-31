@@ -9,6 +9,7 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import App from './App.vue'
 import router from './router'
 import './style.css'
+import { useAuthStore } from './stores/auth'
 
 const app = createApp(App)
 
@@ -17,10 +18,15 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
 app.use(ElementPlus, {
   locale: zhCn,
 })
+
+// 初始化认证状态
+const authStore = useAuthStore()
+authStore.initialize()
 
 app.mount('#app')

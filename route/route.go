@@ -23,11 +23,13 @@ func Setup(app bootstrap.Application, deps *bootstrap.AppDependencies) *gin.Engi
 	// 注册中间件
 	router.Use(gin.Logger(), gin.Recovery())
 
-	// 注册根路由
-	router.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-			"message": "MsgPilot API 服务正在运行",
-		})
+	// 静态文件服务 - 提供Vue构建后的文件
+	router.Static("/assets", "./frontend/dist/assets")
+	router.StaticFile("/favicon.ico", "./frontend/dist/favicon.ico")
+
+	// 首页路由
+	router.GET("/", func(c *gin.Context) {
+		c.File("./frontend/dist/index.html")
 	})
 
 	// API路由组
@@ -46,10 +48,21 @@ func Setup(app bootstrap.Application, deps *bootstrap.AppDependencies) *gin.Engi
 	protectedRoutes := apiGroup.Group("/")
 	protectedRoutes.Use(middleware.AuthMiddleware(app))
 
-	// 为其他 Controller 注册路由到 protectedRoutes  
+	// 为其他 Controller 注册路由到 protectedRoutes
 	deps.ChannelController.RegisterRoutes(protectedRoutes)
 	deps.BridgeController.RegisterRoutes(protectedRoutes)
 	deps.MessageController.RegisterRoutes(protectedRoutes)
+
+	// 处理Vue Router的history模式，所有非API路由都返回index.html
+	router.NoRoute(func(c *gin.Context) {
+		// 如果是API请求，返回404
+		if len(c.Request.URL.Path) >= 4 && c.Request.URL.Path[:4] == "/api" {
+			c.JSON(404, gin.H{"error": "API endpoint not found"})
+			return
+		}
+		// 否则返回Vue应用的index.html（支持前端路由）
+		c.File("./frontend/dist/index.html")
+	})
 
 	return router
 }

@@ -6,8 +6,23 @@ import type { LoginRequest, TokenResponse, User } from '@/types/auth'
 export const useAuthStore = defineStore('auth', () => {
   // 状态
   const token = ref<string>(localStorage.getItem('token') || '')
-  const user = ref<User | null>(null)
   const loading = ref(false)
+
+  // 初始化用户信息 - 从localStorage恢复
+  const initUser = (): User | null => {
+    const savedUsername = localStorage.getItem('username')
+    if (savedUsername && token.value) {
+      return {
+        id: 1,
+        username: savedUsername,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    }
+    return null
+  }
+
+  const user = ref<User | null>(initUser())
 
   // 计算属性
   const isAuthenticated = computed(() => !!token.value)
@@ -20,9 +35,22 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = response.access_token
       localStorage.setItem('token', response.access_token)
       localStorage.setItem('token_expiry', response.expiry.toString())
-      
-      // 获取用户信息
-      await fetchUserInfo()
+      localStorage.setItem('username', credentials.username)
+
+      // 设置用户信息
+      user.value = {
+        id: 1,
+        username: credentials.username,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+
+      // 尝试获取完整用户信息
+      try {
+        await fetchUserInfo()
+      } catch (error) {
+        console.log('获取用户详细信息失败，使用登录用户名')
+      }
     } catch (error) {
       throw error
     } finally {
@@ -38,9 +66,22 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = response.access_token
       localStorage.setItem('token', response.access_token)
       localStorage.setItem('token_expiry', response.expiry.toString())
-      
-      // 获取用户信息
-      await fetchUserInfo()
+      localStorage.setItem('username', credentials.username)
+
+      // 设置用户信息
+      user.value = {
+        id: 1,
+        username: credentials.username,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+
+      // 尝试获取完整用户信息
+      try {
+        await fetchUserInfo()
+      } catch (error) {
+        console.log('获取用户详细信息失败，使用注册用户名')
+      }
     } catch (error) {
       throw error
     } finally {
@@ -54,6 +95,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     localStorage.removeItem('token')
     localStorage.removeItem('token_expiry')
+    localStorage.removeItem('username')
   }
 
   // 获取用户信息
@@ -61,14 +103,19 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const userInfo = await authApi.getCurrentUser()
       user.value = userInfo
+      // 同时更新localStorage中的用户名
+      localStorage.setItem('username', userInfo.username)
     } catch (error) {
       console.error('获取用户信息失败:', error)
-      // 如果获取失败，设置默认用户信息
-      user.value = {
-        id: 1,
-        username: 'admin',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+      // 如果获取失败，使用保存的用户名或默认值
+      const savedUsername = localStorage.getItem('username')
+      if (savedUsername) {
+        user.value = {
+          id: 1,
+          username: savedUsername,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
       }
     }
   }
@@ -91,7 +138,23 @@ export const useAuthStore = defineStore('auth', () => {
   // 初始化时检查token
   const initialize = async (): Promise<void> => {
     if (token.value && checkTokenExpiry()) {
-      await fetchUserInfo()
+      // 从localStorage恢复用户名
+      const savedUsername = localStorage.getItem('username')
+      if (savedUsername) {
+        user.value = {
+          id: 1,
+          username: savedUsername,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      }
+
+      // 尝试获取完整用户信息
+      try {
+        await fetchUserInfo()
+      } catch (error) {
+        console.log('获取用户详细信息失败，使用保存的用户名')
+      }
     } else {
       logout()
     }
