@@ -20,7 +20,7 @@
           <div class="info-section">
             <el-descriptions :column="1" border>
               <el-descriptions-item label="用户ID">
-                {{ authStore.user?.id || '-' }}
+                {{ authStore.user?.id || 1 }}
               </el-descriptions-item>
               <el-descriptions-item label="用户名">
                 {{ authStore.user?.username || 'admin' }}
@@ -134,15 +134,6 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleString('zh-CN')
 }
 
-// 页面加载时获取用户信息
-onMounted(async () => {
-  try {
-    await authStore.fetchUserInfo()
-  } catch (error) {
-    console.error('获取用户信息失败:', error)
-  }
-})
-
 // 修改密码
 const handleChangePassword = async () => {
   if (!passwordFormRef.value) return
@@ -174,6 +165,15 @@ const resetPasswordForm = () => {
   passwordForm.new_password = ''
   passwordForm.confirm_password = ''
 }
+
+// 页面加载时获取用户信息
+onMounted(async () => {
+  try {
+    await authStore.fetchUserInfo()
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
+})
 </script>
 
 <style scoped>

@@ -186,10 +186,13 @@ func (c *AuthController) Me(ctx *gin.Context) {
 		return
 	}
 
-	// 移除"Bearer "前缀
-	token := authHeader
+	// 提取Bearer token
+	token := ""
 	if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
 		token = authHeader[7:]
+	} else {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header format"})
+		return
 	}
 
 	user, err := c.authService.GetCurrentUser(token)
