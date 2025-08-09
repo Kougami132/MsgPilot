@@ -24,12 +24,12 @@ func Setup(app bootstrap.Application, deps *bootstrap.AppDependencies) *gin.Engi
 	router.Use(gin.Logger(), gin.Recovery())
 
 	// 静态文件服务 - 提供Vue构建后的文件
-	router.Static("/assets", "./frontend/dist/assets")
-	router.StaticFile("/favicon.ico", "./frontend/dist/favicon.ico")
+	router.Static("/assets", app.Env.FrontendPath+"/assets")
+	router.StaticFile("/favicon.ico", app.Env.FrontendPath+"/favicon.ico")
 
 	// 首页路由
 	router.GET("/", func(c *gin.Context) {
-		c.File("./frontend/dist/index.html")
+		c.File(app.Env.FrontendPath + "/index.html")
 	})
 
 	// API路由组
@@ -61,7 +61,7 @@ func Setup(app bootstrap.Application, deps *bootstrap.AppDependencies) *gin.Engi
 			return
 		}
 		// 否则返回Vue应用的index.html（支持前端路由）
-		c.File("./frontend/dist/index.html")
+		c.File(app.Env.FrontendPath + "/index.html")
 	})
 
 	return router
