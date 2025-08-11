@@ -40,7 +40,8 @@ APP_ENV=development
 PORT=8080
 CONTEXT_TIMEOUT=10
 ACCESS_TOKEN_EXPIRY_HOUR=720
-ACCESS_TOKEN_SECRET=your_secret_key
+ACCESS_TOKEN_SECRET=secret
+FRONTEND_PATH=./frontend/dist
 ```
 
 4. 运行服务
@@ -49,6 +50,55 @@ go run main.go
 ```
 
 服务将在`http://localhost:8080`启动
+
+## Docker部署
+
+### 使用Docker Compose（推荐）
+
+1. 确保已安装Docker和Docker Compose
+
+2. 编辑docker-compose.yml文件
+```
+services:
+    msgpilot:
+        image: kougami132/msgpilot:latest
+        container_name: msgpilot
+        restart: unless-stopped
+        network_mode: bridge
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./data:/app/data
+        environment:
+            - ACCESS_TOKEN_SECRET=secret
+```
+
+3. 启动服务
+```bash
+docker compose up -d
+```
+
+4. 查看服务状态
+```bash
+docker compose ps
+docker compose logs -f msgpilot
+```
+
+5. 停止服务
+```bash
+docker compose down
+```
+
+### 使用Docker
+
+```bash
+docker run -d \
+  --name msgpilot \
+  -p 8080:8080 \
+  -e ACCESS_TOKEN_SECRET=secret \
+  -v ./data:/app/data \
+  kougami132/msgpilot:latest
+```
 
 ## API文档
 
@@ -62,6 +112,7 @@ go run main.go
 ├── bootstrap/      # 应用初始化和依赖注入
 ├── config/         # 配置文件
 ├── docs/          # API文档
+├── frontend/      # 前端代码
 ├── internal/       # 内部包
 ├── models/         # 数据模型
 ├── route/         # 路由定义

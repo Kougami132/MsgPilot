@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/kougami132/MsgPilot/internal/service"
 	"github.com/kougami132/MsgPilot/internal/channels"
+	"github.com/kougami132/MsgPilot/internal/types"
 )
 
 type AdapterController struct {
@@ -189,7 +190,7 @@ func (c *AdapterController) BarkSendMsg(ctx *gin.Context) {
 		title = title + " - " + subtitle
 	}
 
-	message, err := c.handlerService.CommonPush(ticket, title, body)
+	message, err := c.handlerService.CommonPush(ticket, types.TypeBark, title, body)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -214,7 +215,7 @@ func (c *AdapterController) GotifySendMsg(ctx *gin.Context) {
 	title := ctx.PostForm("title")
 	msg := ctx.PostForm("message")
 
-	message, err := c.handlerService.CommonPush(ticket, title, msg)
+	message, err := c.handlerService.CommonPush(ticket, types.TypeGotify, title, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -238,7 +239,7 @@ func (c *AdapterController) PushDeerSendMsg(ctx *gin.Context) {
 	title := ctx.PostForm("text")
 	msg := ctx.PostForm("desp")
 
-	message, err := c.handlerService.CommonPush(ticket, title, msg)
+	message, err := c.handlerService.CommonPush(ticket, types.TypePushDeer, title, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -278,7 +279,7 @@ func (c *AdapterController) NtfySendMsg(ctx *gin.Context) {
 		}
 	}
 
-	message, err := c.handlerService.CommonPush(ticket, title, msg)
+	message, err := c.handlerService.CommonPush(ticket, types.TypeNtfy, title, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -300,15 +301,23 @@ func (c *AdapterController) NtfySendMsg(ctx *gin.Context) {
 func (c *AdapterController) WebhookSendMsg(ctx *gin.Context) {
 	ticket := ctx.Param("ticket")
 	title := ctx.Query("title")
-	if title == "" {
-		title = ctx.PostForm("title")
-	}
 	msg := ctx.Query("message")
-	if msg == "" {
+	if title == "" && msg == "" {
+		var jsonData struct {
+			Title   string `json:"title"`
+			Message string `json:"message"`
+		}
+		if err := ctx.ShouldBindJSON(&jsonData); err == nil {
+			title = jsonData.Title
+			msg = jsonData.Message
+		}
+	}
+	if title == "" && msg == "" {
+		title = ctx.PostForm("title")
 		msg = ctx.PostForm("message")
 	}
 
-	message, err := c.handlerService.CommonPush(ticket, title, msg)
+	message, err := c.handlerService.CommonPush(ticket, types.TypeWebhook, title, msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
