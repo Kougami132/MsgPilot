@@ -70,7 +70,7 @@ func (u *handlerService) processPush(
 func (u *handlerService) OneBotPush(ticket string, msg string) (*models.Message, error) {
 	createFunc := func(bridge *models.Bridge) *models.Message {
 		return &models.Message{
-			Title:    "MsgPilot消息推送",
+			Title:    bridge.Name,
 			Content:  msg,
 			Status:   types.StatusPending,
 			BridgeID: bridge.ID,
@@ -81,12 +81,9 @@ func (u *handlerService) OneBotPush(ticket string, msg string) (*models.Message,
 }
 
 func (u *handlerService) CommonPush(ticket string, msgType types.ChannelType, title string, msg string) (*models.Message, error) {
-	if title == "" {
-		title = "MsgPilot消息推送"
-	}
 	createFunc := func(bridge *models.Bridge) *models.Message {
 		return &models.Message{
-			Title:    title,
+			Title:    bridge.Name,
 			Content:  msg,
 			Status:   types.StatusPending,
 			BridgeID: bridge.ID,
