@@ -248,7 +248,7 @@ const getApiUrl = (bridge: Bridge) => {
     case 'onebot':
       return `${baseUrl}/api/onebot/${ticket}/send_msg`
     case 'bark':
-      return `${baseUrl}/api/bark/${ticket}/push`
+      return `${baseUrl}/api/bark/${ticket}`
     case 'gotify':
       return `${baseUrl}/api/gotify/message?token=${ticket}`
     case 'pushdeer':

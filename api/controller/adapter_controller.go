@@ -150,7 +150,7 @@ func (c *AdapterController) BarkSendMsg(ctx *gin.Context) {
 			subtitle = parts[1]
 			body = parts[2]
 		default:
-			break
+			body = trimmedAction
 		}
 	} else if ctx.Request.Method == "POST" {
 		// 从POST form获取
