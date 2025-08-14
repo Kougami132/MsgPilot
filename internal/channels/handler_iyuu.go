@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/kougami132/MsgPilot/internal/types"
+	"github.com/kougami132/MsgPilot/internal/utils"
 	"github.com/kougami132/MsgPilot/models"
 	"gorm.io/datatypes"
 )
@@ -39,7 +40,8 @@ func (h *IYUUHandler) Send(message *models.Message) error {
 	}
 	defer resp.Body.Close()
 
-	return nil
+	// 检查HTTP状态码
+	return utils.CheckHTTPResponse(resp)
 }
 
 func init() {
@@ -47,4 +49,3 @@ func init() {
 		return &IYUUHandler{config: config}
 	})
 }
-

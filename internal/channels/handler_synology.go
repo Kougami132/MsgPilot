@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/kougami132/MsgPilot/internal/types"
+	"github.com/kougami132/MsgPilot/internal/utils"
 	"github.com/kougami132/MsgPilot/models"
 	"gorm.io/datatypes"
-	"github.com/kougami132/MsgPilot/internal/types"
 )
 
 type SynologyHandler struct {
@@ -16,7 +17,7 @@ type SynologyHandler struct {
 }
 
 type SynologyConfig struct {
-	BaseUrl  string `json:"base_url"`
+	BaseUrl string `json:"base_url"`
 }
 
 func (h *SynologyHandler) Send(message *models.Message) error {
@@ -38,7 +39,8 @@ func (h *SynologyHandler) Send(message *models.Message) error {
 	}
 	defer resp.Body.Close()
 
-	return nil
+	// 检查HTTP状态码
+	return utils.CheckHTTPResponse(resp)
 }
 
 func init() {
@@ -46,5 +48,3 @@ func init() {
 		return &SynologyHandler{config: config}
 	})
 }
-
-

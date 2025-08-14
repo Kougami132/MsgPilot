@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/kougami132/MsgPilot/internal/types"
+	"github.com/kougami132/MsgPilot/internal/utils"
 	"github.com/kougami132/MsgPilot/models"
 	"gorm.io/datatypes"
-	"github.com/kougami132/MsgPilot/internal/types"
 )
 
 type ServerChanHandler struct {
@@ -27,7 +28,7 @@ func (h *ServerChanHandler) Send(message *models.Message) error {
 
 	body := map[string]interface{}{
 		"title": message.Title,
-		"desp": message.Content,
+		"desp":  message.Content,
 	}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
@@ -39,7 +40,8 @@ func (h *ServerChanHandler) Send(message *models.Message) error {
 	}
 	defer resp.Body.Close()
 
-	return nil
+	// 检查HTTP状态码
+	return utils.CheckHTTPResponse(resp)
 }
 
 func init() {

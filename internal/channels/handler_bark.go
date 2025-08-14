@@ -1,12 +1,13 @@
 package channels
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"bytes"
 
 	"github.com/kougami132/MsgPilot/internal/types"
+	"github.com/kougami132/MsgPilot/internal/utils"
 	"github.com/kougami132/MsgPilot/models"
 	"gorm.io/datatypes"
 )
@@ -15,7 +16,7 @@ type BarkHandler struct {
 	config datatypes.JSON
 }
 
-type BarkConfig struct { 
+type BarkConfig struct {
 	BaseUrl string `json:"base_url"`
 	Key     string `json:"key"`
 	Sound   string `json:"sound"`
@@ -30,11 +31,11 @@ func (h *BarkHandler) Send(message *models.Message) error {
 	}
 
 	body := map[string]interface{}{
-		"title":   message.Title,
-		"body":    message.Content,
-		"sound":   cfg.Sound,
-		"icon":    cfg.Icon,
-		"url":     cfg.Url,
+		"title": message.Title,
+		"body":  message.Content,
+		"sound": cfg.Sound,
+		"icon":  cfg.Icon,
+		"url":   cfg.Url,
 	}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
@@ -46,7 +47,8 @@ func (h *BarkHandler) Send(message *models.Message) error {
 	}
 	defer resp.Body.Close()
 
-	return nil
+	// 检查HTTP状态码
+	return utils.CheckHTTPResponse(resp)
 }
 
 func init() {

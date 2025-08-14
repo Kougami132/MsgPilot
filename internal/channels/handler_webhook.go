@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/kougami132/MsgPilot/models"
 	"github.com/kougami132/MsgPilot/internal/types"
+	"github.com/kougami132/MsgPilot/internal/utils"
+	"github.com/kougami132/MsgPilot/models"
 	"gorm.io/datatypes"
 )
 
@@ -17,11 +18,11 @@ type WebhookHandler struct {
 }
 
 type WebhookConfig struct {
-	BaseUrl   string `json:"base_url"`
-	Method    string `json:"method"`
-	ContentType string `json:"content_type"`
-	Body string `json:"body"`
-	Headers map[string]string `json:"headers"`
+	BaseUrl     string            `json:"base_url"`
+	Method      string            `json:"method"`
+	ContentType string            `json:"content_type"`
+	Body        string            `json:"body"`
+	Headers     map[string]string `json:"headers"`
 }
 
 func (h *WebhookHandler) Send(message *models.Message) error {
@@ -29,7 +30,7 @@ func (h *WebhookHandler) Send(message *models.Message) error {
 	if err := json.Unmarshal(h.config, &cfg); err != nil {
 		return fmt.Errorf("解析Webhook配置失败: %w", err)
 	}
-	
+
 	body := strings.Replace(cfg.Body, "$title", message.Title, -1)
 	body = strings.Replace(body, "$content", message.Content, -1)
 	jsonBody, err := json.Marshal(body)
@@ -52,7 +53,8 @@ func (h *WebhookHandler) Send(message *models.Message) error {
 	}
 	defer resp.Body.Close()
 
-	return nil
+	// 检查HTTP状态码
+	return utils.CheckHTTPResponse(resp)
 }
 
 func init() {
@@ -61,5 +63,3 @@ func init() {
 		return &WebhookHandler{config: config}
 	})
 }
-
-

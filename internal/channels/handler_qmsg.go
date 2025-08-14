@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/kougami132/MsgPilot/internal/types"
+	"github.com/kougami132/MsgPilot/internal/utils"
 	"github.com/kougami132/MsgPilot/models"
 	"gorm.io/datatypes"
 )
@@ -30,7 +31,7 @@ func (h *QMsgHandler) Send(message *models.Message) error {
 
 	body := map[string]interface{}{
 		"bot": cfg.Bot,
-		"qq": cfg.QQ,
+		"qq":  cfg.QQ,
 		"msg": fmt.Sprintf("%s：\n%s", message.Title, message.Content),
 	}
 	jsonBody, err := json.Marshal(body)
@@ -43,7 +44,8 @@ func (h *QMsgHandler) Send(message *models.Message) error {
 	}
 	defer resp.Body.Close()
 
-	return nil
+	// 检查HTTP状态码
+	return utils.CheckHTTPResponse(resp)
 }
 
 func init() {
@@ -51,6 +53,3 @@ func init() {
 		return &QMsgHandler{config: config}
 	})
 }
-
-
-	

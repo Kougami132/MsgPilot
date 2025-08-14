@@ -107,7 +107,7 @@ func (c *AdapterController) OneBotSendMsg(ctx *gin.Context) {
 	}
 
 	// 调用service处理消息
-	message, err := c.handlerService.OneBotPush(ticket, msg)
+	message, err := c.handlerService.CommonPush(ticket, types.TypeOneBot, "", msg)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

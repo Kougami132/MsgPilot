@@ -8,8 +8,9 @@ import (
 
 	"gorm.io/datatypes"
 
-	"github.com/kougami132/MsgPilot/models"
 	"github.com/kougami132/MsgPilot/internal/types"
+	"github.com/kougami132/MsgPilot/internal/utils"
+	"github.com/kougami132/MsgPilot/models"
 )
 
 type GotifyHandler struct {
@@ -26,10 +27,10 @@ func (h *GotifyHandler) Send(message *models.Message) error {
 	if err := json.Unmarshal(h.config, &cfg); err != nil {
 		return fmt.Errorf("解析Gotify配置失败: %w", err)
 	}
-	
+
 	body := map[string]interface{}{
-		"title":   	message.Title,
-		"message":  message.Content,
+		"title":   message.Title,
+		"message": message.Content,
 	}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
@@ -41,7 +42,8 @@ func (h *GotifyHandler) Send(message *models.Message) error {
 	}
 	defer resp.Body.Close()
 
-	return nil
+	// 检查HTTP状态码
+	return utils.CheckHTTPResponse(resp)
 }
 
 func init() {
@@ -50,4 +52,3 @@ func init() {
 		return &GotifyHandler{config: config}
 	})
 }
-

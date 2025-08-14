@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/kougami132/MsgPilot/internal/types"
+	"github.com/kougami132/MsgPilot/internal/utils"
 	"github.com/kougami132/MsgPilot/models"
 	"gorm.io/datatypes"
 )
@@ -26,8 +27,8 @@ func (h *PushPlusHandler) Send(message *models.Message) error {
 	}
 
 	body := map[string]interface{}{
-		"token": cfg.Token,
-		"title": message.Title,
+		"token":   cfg.Token,
+		"title":   message.Title,
 		"content": message.Content,
 	}
 	jsonBody, err := json.Marshal(body)
@@ -40,7 +41,8 @@ func (h *PushPlusHandler) Send(message *models.Message) error {
 	}
 	defer resp.Body.Close()
 
-	return nil
+	// 检查HTTP状态码
+	return utils.CheckHTTPResponse(resp)
 }
 
 func init() {
@@ -48,4 +50,3 @@ func init() {
 		return &PushPlusHandler{config: config}
 	})
 }
-

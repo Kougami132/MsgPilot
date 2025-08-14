@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/kougami132/MsgPilot/internal/types"
+	"github.com/kougami132/MsgPilot/internal/utils"
 	"github.com/kougami132/MsgPilot/models"
 	"gorm.io/datatypes"
 )
@@ -21,7 +22,7 @@ type DingTalkHandler struct {
 }
 
 type DingTalkConfig struct {
-	Token string `json:"token"`
+	Token  string `json:"token"`
 	Secret string `json:"secret"`
 }
 
@@ -60,7 +61,8 @@ func (h *DingTalkHandler) Send(message *models.Message) error {
 	}
 	defer resp.Body.Close()
 
-	return nil
+	// 检查HTTP状态码
+	return utils.CheckHTTPResponse(resp)
 }
 
 func init() {

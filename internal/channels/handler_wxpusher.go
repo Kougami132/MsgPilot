@@ -9,8 +9,9 @@ import (
 
 	"gorm.io/datatypes"
 
-	"github.com/kougami132/MsgPilot/models"
 	"github.com/kougami132/MsgPilot/internal/types"
+	"github.com/kougami132/MsgPilot/internal/utils"
+	"github.com/kougami132/MsgPilot/models"
 )
 
 type WxPusherHandler struct {
@@ -47,7 +48,8 @@ func (h *WxPusherHandler) Send(message *models.Message) error {
 	}
 	defer resp.Body.Close()
 
-	return nil
+	// 检查HTTP状态码
+	return utils.CheckHTTPResponse(resp)
 }
 
 func init() {

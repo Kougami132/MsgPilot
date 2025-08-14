@@ -63,6 +63,14 @@
               </el-tag>
             </template>
           </el-table-column>
+          <el-table-column prop="error_message" label="错误信息" min-width="200" show-overflow-tooltip>
+            <template #default="{ row }">
+              <span v-if="row.error_message" class="error-message">
+                {{ row.error_message }}
+              </span>
+              <span v-else class="no-error">-</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="created_at" label="创建时间" width="180">
             <template #default="{ row }">
               {{ formatDate(row.created_at) }}
@@ -108,7 +116,7 @@
             </el-tag>
           </el-descriptions-item>
           <el-descriptions-item v-if="viewingMessage.error_message" label="错误信息">
-            {{ viewingMessage.error_message }}
+            <span class="error-message-detail">{{ viewingMessage.error_message }}</span>
           </el-descriptions-item>
           <el-descriptions-item label="发送时间">
             {{ formatDate(viewingMessage.created_at) }}
@@ -340,5 +348,22 @@ onMounted(() => {
 
 .message-detail {
   padding: 16px 0;
+}
+
+.error-message {
+  color: #f56c6c;
+  font-size: 12px;
+}
+
+.error-message-detail {
+  color: #f56c6c;
+  font-size: 14px;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.no-error {
+  color: #909399;
+  font-style: italic;
 }
 </style>

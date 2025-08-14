@@ -10,7 +10,6 @@ import (
 
 type HandlerService interface {
 	CommonPush(ticket string, msgType types.ChannelType, title string, msg string) (*models.Message, error)
-	OneBotPush(ticket string, msg string) (*models.Message, error)
 }
 
 type handlerService struct {
@@ -67,23 +66,13 @@ func (u *handlerService) processPush(
 	return message, nil
 }
 
-func (u *handlerService) OneBotPush(ticket string, msg string) (*models.Message, error) {
-	createFunc := func(bridge *models.Bridge) *models.Message {
-		return &models.Message{
-			Title:    bridge.Name,
-			Content:  msg,
-			Status:   types.StatusPending,
-			BridgeID: bridge.ID,
-			Bridge:   *bridge,
-		}
-	}
-	return u.processPush(ticket, types.TypeOneBot, createFunc)
-}
-
 func (u *handlerService) CommonPush(ticket string, msgType types.ChannelType, title string, msg string) (*models.Message, error) {
 	createFunc := func(bridge *models.Bridge) *models.Message {
+		if title == "" {
+			title =	bridge.Name
+		}
 		return &models.Message{
-			Title:    bridge.Name,
+			Title:    title,
 			Content:  msg,
 			Status:   types.StatusPending,
 			BridgeID: bridge.ID,

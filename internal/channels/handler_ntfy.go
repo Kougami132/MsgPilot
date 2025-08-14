@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"gorm.io/datatypes"
-	"github.com/kougami132/MsgPilot/models"
+
 	"github.com/kougami132/MsgPilot/internal/types"
+	"github.com/kougami132/MsgPilot/internal/utils"
+	"github.com/kougami132/MsgPilot/models"
+	"gorm.io/datatypes"
 )
 
 type NtfyHandler struct {
@@ -25,11 +27,11 @@ func (h *NtfyHandler) Send(message *models.Message) error {
 	if err := json.Unmarshal(h.config, &cfg); err != nil {
 		return fmt.Errorf("解析Ntfy配置失败: %w", err)
 	}
-	
+
 	body := map[string]interface{}{
-		"topic":   	cfg.Topic,
-		"title":   	message.Title,
-		"message":  message.Content,
+		"topic":   cfg.Topic,
+		"title":   message.Title,
+		"message": message.Content,
 	}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
@@ -42,7 +44,8 @@ func (h *NtfyHandler) Send(message *models.Message) error {
 	}
 	defer resp.Body.Close()
 
-	return nil
+	// 检查HTTP状态码
+	return utils.CheckHTTPResponse(resp)
 }
 
 func init() {
@@ -51,4 +54,3 @@ func init() {
 		return &NtfyHandler{config: config}
 	})
 }
-
